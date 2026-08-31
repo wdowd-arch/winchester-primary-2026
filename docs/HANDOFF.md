@@ -159,18 +159,13 @@ so nothing else changes.
 
 ### Embedding
 
-```html
-<iframe id="senate-results" src="https://wdowd-arch.github.io/winchester-primary-2026/"
-        title="2nd and 5th Middlesex Senate primary results" loading="lazy" scrolling="no"
-        style="width:100%; height:2600px; border:0; display:block;"></iframe>
-<script>
-  window.addEventListener('message', function (e) {
-    if (e.origin !== 'https://wdowd-arch.github.io') return;
-    if (e.data && e.data.winchesterHeight)
-      document.getElementById('senate-results').style.height = e.data.winchesterHeight + 'px';
-  });
-</script>
-```
+The paste-ready snippet lives in [`embed.html`](embed.html) — copy that file's contents into a
+Custom HTML block in the article. It checks `e.source` as well as `e.origin`, so only this widget
+can resize its own iframe, and clamps the height so a bad value cannot break the article layout.
+
+`render()` calls `postHeight()` on every pass, so the iframe tracks the page as results come in.
+If the host CMS strips `<script>`, drop the script block and leave the iframe at a fixed height
+tall enough for the finished page — check it on a phone, where it is tallest.
 
 ---
 
