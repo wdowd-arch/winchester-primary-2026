@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2nd and 5th Middlesex Senate primaries: live results | Winchester News</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Inline, so the page makes no second request and logs no favicon 404. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231D4E6B%27/%3E%3Ctext x=%278%27 y=%2712%27 font-family=%27Georgia,serif%27 font-size=%2711%27 font-weight=%27bold%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="description" content="Live district-wide results for the Sept. 1, 2026 Democratic state Senate primaries in the 2nd and 5th Middlesex districts.">
+  <style>
+    :root {
+      --ink:        #1A1C1E;   /* primary text */
+      --paper:      #FCFBF8;   /* page ground */
+      --accent:     #1D4E6B;   /* leader / live accent - SWAP for Winchester News brand color */
+      --accent-2:   #7A5C2E;   /* secondary accent */
+      --rule:       #E3DFD7;
+      --muted-ink:  #6A6660;
+      --muted-bar:  #A8A29A;
+      --tint:       rgba(29, 78, 107, 0.07);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Georgia, 'Times New Roman', serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 30px 24px 60px; }
+
+    /* ── Demo-mode scenario picker (only shown with ?demo=1) ── */
+    .scenario-picker {
+      background: var(--ink); color: var(--paper);
+      padding: 12px 20px; display: none; gap: 6px; flex-wrap: wrap; align-items: center;
+      font-family: Georgia, serif; font-size: 12px;
+    }
+    body.demo .scenario-picker { display: flex; }
+    .scenario-picker .pl { letter-spacing: 2px; text-transform: uppercase; color: #C8C0B0; margin-right: 8px; font-weight: 700; }
+    .scenario-picker button {
+      background: transparent; color: var(--paper); border: 1px solid #4A4A4C;
+      padding: 6px 12px; font-family: Georgia, serif; font-size: 13px; cursor: pointer;
+    }
+    .scenario-picker button:hover { border-color: var(--paper); }
+    .scenario-picker button.active { background: var(--accent); border-color: var(--accent); }
+
+    /* ── Masthead ── */
+    .masthead {
+      border-bottom: 2px solid var(--ink);
+      padding: 4px 16px 16px; margin-bottom: 22px; text-align: center;
+    }
+    .wordmark {
+      font-size: 30px; font-weight: 700; letter-spacing: 0.5px; margin: 8px 0 0;
+    }
+    .masthead-note {
+      font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase;
+      color: var(--muted-ink); margin: 10px 0 0; line-height: 1.8;
+    }
+
+    h1 { font-size: 34px; font-weight: 700; line-height: 1.12; margin: 10px 0 12px; letter-spacing: -0.3px; }
+
+    .live-meta {
+      font-size: 13px; color: var(--muted-ink); margin-bottom: 14px;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .live-meta strong { color: var(--ink); }
+    .live-dot {
+      display: inline-block; width: 8px; height: 8px; background: var(--accent);
+      border-radius: 50%; margin-right: 7px; vertical-align: middle;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.85); } }
+    @media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
+
+    /* ── The standing "Winchester only" explainer. This is the whole editorial
+         posture of the page, so it is always visible, never dismissible. ── */
+    .scope-note {
+      font-size: 14px; padding: 14px 16px; background: var(--tint);
+      border-left: 5px solid var(--accent); margin: 18px 0 26px;
+    }
+    .scope-note p { margin: 0 0 8px; }
+    .scope-note p:last-child { margin-bottom: 0; }
+    .scope-note strong { font-weight: 700; }
+
+    .complete-banner {
+      background: var(--ink); color: var(--paper);
+      padding: 10px 16px; font-size: 12px; letter-spacing: 2.5px;
+      text-transform: uppercase; font-weight: 700; margin-bottom: 14px;
+      border-left: 5px solid var(--accent);
+    }
+    .complete-banner.hidden { display: none; }
+
+    section { margin: 38px 0; }
+    section h2 {
+      font-size: 25px; font-weight: 700; margin: 0 0 6px;
+      border-bottom: 1px solid var(--ink); padding-bottom: 10px;
+    }
+    .section-sub { font-size: 13px; color: var(--muted-ink); margin: 6px 0 4px; font-style: italic; }
+    .section-meta { font-size: 13px; color: var(--muted-ink); margin: 0 0 16px; }
+
+    /* ── Per-race hero: "Leading in Winchester" -> "Winchester complete".
+         Deliberately never says elected / wins / holds. ── */
+    .race-lead {
+      background: var(--ink); color: var(--paper);
+      padding: 14px 16px; margin: 0 0 16px; border-left: 5px solid var(--accent);
+    }
+    .race-lead.complete { background: var(--accent); border-left-color: var(--paper); }
+    .race-lead-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #9FC6DA; margin: 0 0 4px; font-weight: 700;
+    }
+    .race-lead.complete .race-lead-label { color: var(--paper); }
+    .race-lead-text { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.25; }
+    .race-lead-sub { font-size: 13px; font-style: italic; margin: 7px 0 0; color: #C8C0B0; max-width: 58ch; }
+    .race-lead.complete .race-lead-sub { color: rgba(255,255,255,0.92); }
+
+    .race-report {
+      font-size: 11px; color: var(--muted-bar); letter-spacing: 0.4px;
+      text-transform: uppercase; margin: 0 0 12px;
+    }
+
+    /* ── Candidate rows. One accent hue for the Winchester leader, muted for the
+         rest: magnitude, not identity - never a hue per candidate. ── */
+    .cand-row {
+      display: grid; grid-template-columns: 1fr auto 64px; gap: 14px;
+      align-items: baseline; padding: 12px 0 6px; border-bottom: 1px solid var(--rule);
+    }
+    .cand-row:last-of-type { border-bottom: none; }
+    .cand-name { font-size: 17px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+    .cand-name .marker {
+      display: inline-block; width: 6px; height: 6px; background: transparent;
+      border-radius: 50%; flex-shrink: 0; transform: translateY(-2px);
+    }
+    .cand-row.leading .cand-name { font-weight: 700; }
+    .cand-row.leading .cand-name .marker { background: var(--accent); }
+    .cand-name .home { font-size: 12px; color: var(--muted-ink); font-style: italic; }
+    .cand-votes { font-variant-numeric: tabular-nums; font-size: 16px; text-align: right; }
+    .cand-pct { font-size: 13px; color: var(--muted-ink); text-align: right; font-variant-numeric: tabular-nums; }
+    .cand-bar { grid-column: 1 / -1; height: 10px; background: var(--rule); position: relative; overflow: hidden; border-radius: 0 3px 3px 0; margin-top: 2px; }
+    .cand-bar-fill {
+      position: absolute; inset: 0 auto 0 0; background: var(--muted-bar);
+      border-radius: 0 3px 3px 0; transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .cand-row.leading .cand-bar-fill { background: var(--accent); }
+    .cand-flag {
+      grid-column: 1 / -1; font-size: 12px; font-style: italic;
+      color: var(--accent-2); margin: 6px 0 0;
+    }
+
+    .tallies {
+      display: flex; gap: 26px; flex-wrap: wrap; margin: 16px 0 0;
+      padding-top: 12px; border-top: 1px solid var(--rule);
+      font-size: 13px; color: var(--muted-ink);
+    }
+    .tallies span strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+    footer {
+      margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--ink);
+      font-size: 12px; color: var(--muted-ink); line-height: 1.7;
+    }
+    footer p { margin: 0 0 6px; }
+
+
+    /* ── Community reporting strip: which places are in, which are still out ── */
+    .communities {
+      display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px;
+    }
+    .community {
+      font-size: 12px; padding: 4px 10px; border: 1px solid var(--rule);
+      background: #FFFFFF; color: var(--muted-ink); display: flex; align-items: center; gap: 6px;
+    }
+    .community .tick { font-size: 10px; letter-spacing: 1px; }
+    .community.in { border-color: var(--accent); color: var(--ink); font-weight: 700; }
+    .community.partial { border-color: var(--accent-2); color: var(--accent-2); }
+    .community .sub { font-weight: 400; font-style: italic; color: var(--muted-ink); }
+    .home-detail {
+      margin: 4px 0 16px; padding: 10px 14px; background: var(--tint);
+      border-left: 3px solid var(--accent); font-size: 12.5px; color: var(--muted-ink);
+    }
+    .home-detail strong { color: var(--ink); }
+    .unverified {
+      font-size: 12px; font-style: italic; color: var(--accent-2);
+      margin: 0 0 14px; padding: 8px 12px; border: 1px dashed var(--accent-2);
+    }
+
+    @media (max-width: 760px) {
+      .container { padding: 22px 16px 48px; }
+      h1 { font-size: 27px; }
+      .wordmark { font-size: 24px; }
+      section h2 { font-size: 21px; }
+    }
+    @media (max-width: 420px) {
+      .cand-row { grid-template-columns: 1fr auto; }
+      .cand-pct { grid-column: 2; }
+      .cand-name { font-size: 15px; }
+      h1 { font-size: 23px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scenario-picker" id="picker">
+    <span class="pl">Demo</span>
+  </div>
+
+  <div class="container">
+    <header class="masthead">
+      <p class="wordmark">Winchester News</p>
+      <p class="masthead-note">Live count &middot; Massachusetts state primary &middot; Tuesday, Sept. 1, 2026</p>
+    </header>
+
+    <h1>The 2nd and 5th Middlesex Senate primaries</h1>
+
+    <div class="live-meta">
+      <span><span class="live-dot"></span><strong id="status">Loading&hellip;</strong></span>
+      <span>Polls close 8 p.m.</span>
+    </div>
+
+    <div class="complete-banner hidden" id="complete-banner">All communities reporting in both districts</div>
+
+    <div class="scope-note">
+      <p><strong>Both seats are open, and both are decided across several communities.</strong>
+      Each race below counts every city and town in its district, reported as each community
+      posts its totals. Winchester is broken out precinct by precinct because that is where
+      our reporters are.</p>
+      <p>Winchester is split between the two districts: precincts 4, 5, 6 and 7 vote in the
+      <strong>2nd Middlesex</strong>; precincts 1, 2, 3 and 8 vote in the <strong>5th Middlesex</strong>.</p>
+    </div>
+
+    <div id="races"></div>
+
+    <footer>
+      <p>Each community's totals are entered by Winchester News as that community posts its
+      results. Winchester's own precincts are counted by our reporters at the polls. A blank
+      means a community has not reported yet, not that it recorded no votes.</p>
+      <p>Unofficial and subject to correction. Official results are certified by the Secretary
+      of the Commonwealth. The 2nd Middlesex district covers Somerville, Medford, Cambridge
+      wards 9&ndash;11 and Winchester precincts 4&ndash;7; the 5th Middlesex covers Malden,
+      Melrose, Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. The general
+      election is Tuesday, Nov. 3, 2026.</p>
+    </footer>
+  </div>
+
+    <script>
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CONFIG
+    // ─────────────────────────────────────────────────────────────────────────
+    // Results live in the repo, served by Pages alongside this page. Relative,
+    // so the same file works locally and deployed, and same-origin, so there is
+    // no CORS hop and no third-party service between us and the numbers.
+    const CSV_URL = "data/results.csv";
+    const REFRESH_MS = 15000;
+    const STORAGE_KEY = 'middlesex-senate-primary-2026';
+
+    // Declare a winner once every community in a district has reported?
+    // Left OFF deliberately. These totals are assembled by hand from other
+    // communities' postings, so "leads with all communities reporting" is a
+    // claim we can stand behind and "wins" is not, until the desk says so.
+    const ALLOW_CALL = false;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DISTRICT COMPOSITION
+    //
+    // Statutory composition (2021 redistricting, effective 2022):
+    //   2nd Middlesex - Cambridge wards 9-11, all of Medford, all of Somerville,
+    //                   and Winchester precincts 4-7.
+    //   5th Middlesex - all of Malden, Melrose, Reading, Stoneham and Wakefield,
+    //                   and Winchester precincts 1, 2, 3 and 8.
+    //
+    // `precincts` is the number of precincts inside a community, used only for
+    // the secondary "N precincts" line. null means NOT YET VERIFIED - the page
+    // simply omits the precinct line for that community rather than printing a
+    // number we are not sure of. Fill these in from the Secretary of the
+    // Commonwealth or each clerk before election night. See docs/HANDOFF.md.
+    // ─────────────────────────────────────────────────────────────────────────
+    const RACES = [
+      {
+        key: 'Second Middlesex Senate - Democratic',
+        title: 'State Senate &middot; 2nd Middlesex',
+        party: 'Democratic primary',
+        open: 'Open seat. Sen. Patricia Jehlen is not seeking re-election.',
+        communities: [
+          { label: 'Somerville',            areas: ['Somerville'],       precincts: null },
+          { label: 'Medford',               areas: ['Medford'],          precincts: null },
+          { label: 'Cambridge (wards 9-11)',areas: ['Cambridge W9-11'],  precincts: null },
+          { label: 'Winchester (4-7)',      home: true, precincts: 4,
+            areas: ['Winchester P4', 'Winchester P5', 'Winchester P6', 'Winchester P7'] }
+        ],
+        cands: [
+          { n: 'Burhan Azeem',      home: 'Cambridge' },
+          { n: 'Christine Barber',  home: 'Somerville' },
+          { n: 'Tom Hopcroft',      home: 'Winchester',
+            flag: 'Suspended active campaigning July 31; remained on the ballot after the withdrawal deadline.' },
+          { n: 'Matt McLaughlin',   home: 'Somerville' },
+          { n: 'Erika Uyterhoeven', home: 'Somerville' }
+        ]
+      },
+      {
+        key: 'Fifth Middlesex Senate - Democratic',
+        title: 'State Senate &middot; 5th Middlesex',
+        party: 'Democratic primary',
+        open: 'Open seat. Sen. Jason Lewis is not seeking re-election.',
+        communities: [
+          { label: 'Malden',           areas: ['Malden'],    precincts: null },
+          { label: 'Melrose',          areas: ['Melrose'],   precincts: null },
+          { label: 'Reading',          areas: ['Reading'],   precincts: null },
+          { label: 'Stoneham',         areas: ['Stoneham'],  precincts: null },
+          { label: 'Wakefield',        areas: ['Wakefield'], precincts: null },
+          { label: 'Winchester (1-3, 8)', home: true, precincts: 4,
+            areas: ['Winchester P1', 'Winchester P2', 'Winchester P3', 'Winchester P8'] }
+        ],
+        cands: [
+          { n: 'Kate Lipper-Garabedian', home: 'Melrose' },
+          { n: 'Carey McDonald',         home: 'Malden' },
+          { n: "Ryan J. O'Malley",       home: 'Malden' }
+        ]
+      }
+    ];
+
+    // Sheet columns C onward, in this exact order. Adding a column here means
+    // adding it to the workbook in the same position - see build-sheet.py.
+    const COLUMNS = RACES.flatMap(r => r.communities.flatMap(c => c.areas));
+    const colIndex = area => COLUMNS.indexOf(area) + 2;
+    const KNOWN_SECTIONS = new Set(RACES.map(r => r.key));
+    const raceAreas = race => race.communities.flatMap(c => c.areas);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LIVE-DATA STATE
+    // ─────────────────────────────────────────────────────────────────────────
+    let lastGood = null, lastUpdated = null, fetchOk = true;
+
+    // A real CSV parser. Sheets quotes any field containing a comma, and these
+    // labels and names contain plenty; split(',') would shift every column.
+    function parseCSV(text) {
+      const rows = []; let row = [], field = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
+          else field += c;
+        } else if (c === '"') inQuotes = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c !== '\r') field += c;
+      }
+      row.push(field); rows.push(row);
+      return rows;
+    }
+
+    // A BLANK cell is null (never 0), so "hasn't reported" and "reported zero"
+    // stay distinguishable. A real 0 stays 0.
+    function parseCell(s) {
+      const t = (s || '').replace(/[^\d-]/g, '');
+      return t === '' ? null : (parseInt(t, 10) || 0);
+    }
+
+    async function fetchData() {
+      try {
+        if (!CSV_URL) throw new Error('no CSV_URL configured');
+        const res = await fetch(CSV_URL + (CSV_URL.includes('?') ? '&' : '?') + 'cb=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const parsed = parseCSV((await res.text()).trim()).slice(1)
+          .map(r => r.map(c => (c || '').trim()))
+          .map(r => [r[0], r[1], ...COLUMNS.map((_, i) => parseCell(r[2 + i]))])
+          .filter(r => KNOWN_SECTIONS.has(r[0]) && r[1]);
+        if (!parsed.length) throw new Error('no data rows');
+        lastGood = parsed; lastUpdated = new Date(); fetchOk = true;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ t: lastUpdated.toISOString(), data: parsed })); } catch (e) {}
+        return parsed;
+      } catch (e) {
+        console.warn('Sheet unavailable; keeping last good results:', e);
+        fetchOk = false;
+        return lastGood || loadCache() || [];
+      }
+    }
+
+    function loadCache() {
+      try {
+        const o = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (o && Array.isArray(o.data) && o.data.length) {
+          if (o.t) lastUpdated = new Date(o.t);
+          return o.data;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // COUNTING - scoped to a race's own areas, so a number typed into a column
+    // belonging to the other district can never reach these totals.
+    // ─────────────────────────────────────────────────────────────────────────
+    const cellAt = (row, area) => row[colIndex(area)];
+    const total = (row, areas) => areas.reduce((a, x) => a + (cellAt(row, x) || 0), 0);
+    const hasData = (row, areas) => areas.some(x => cellAt(row, x) !== null && cellAt(row, x) !== undefined);
+
+    // An area counts as reported only when EVERY candidate cell in its column has
+    // a number. Write-in and Blanks are not required, so a half-typed column
+    // cannot move a race forward.
+    function areasReported(reqRows, areas) {
+      reqRows = reqRows.filter(Boolean);
+      if (!reqRows.length) return [];
+      return areas.filter(x => reqRows.every(r => cellAt(r, x) !== null && cellAt(r, x) !== undefined));
+    }
+
+    const raceRows = (race, data) =>
+      data.filter(r => r[0] === race.key && r[1] !== 'Write-in' && r[1] !== 'Blanks');
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // RACE STATE
+    //   awaiting   nothing entered yet
+    //   leading    some communities in; someone is ahead of those counted
+    //   complete   every community in the district has reported
+    // With ALLOW_CALL off, `complete` still says "leads", not "wins".
+    // ─────────────────────────────────────────────────────────────────────────
+    function raceState(race, data) {
+      const rows = raceRows(race, data);
+      const areas = raceAreas(race);
+      const inAreas = new Set(areasReported(rows, areas));
+
+      const communities = race.communities.map(c => {
+        const inCount = c.areas.filter(a => inAreas.has(a)).length;
+        // "Partial" also covers a community whose single column has been started
+        // but not finished - it contributes no votes either way, but the desk
+        // needs to see that someone is mid-entry rather than that it is untouched.
+        const started = c.areas.some(a => rows.some(r => cellAt(r, a) !== null && cellAt(r, a) !== undefined));
+        return {
+          label: c.label, home: !!c.home, precincts: c.precincts,
+          parts: c.areas.length, inCount,
+          state: inCount === c.areas.length ? 'in' : (started ? 'partial' : 'out')
+        };
+      });
+      const commIn = communities.filter(c => c.state === 'in').length;
+      const complete = commIn === communities.length;
+
+      // Only count votes from areas that have fully reported, so a partly-typed
+      // community never contributes a lopsided fragment to the standings.
+      const counted = [...inAreas];
+      // With no rows at all - first load before the first fetch lands, or the
+      // feed unreachable on a browser with nothing cached - fall back to the
+      // configured ballot so the race still shows its candidates at a dash,
+      // rather than rendering a race with nobody in it.
+      const cands = (rows.length
+        ? rows.map(r => ({
+            name: r[1], votes: total(r, counted),
+            meta: race.cands.find(c => c.n === r[1]) || {}
+          }))
+        : race.cands.map(c => ({ name: c.n, votes: 0, meta: c }))
+      ).sort((a, b) => b.votes - a.votes);
+
+      const wRow = data.find(r => r[0] === race.key && r[1] === 'Write-in');
+      const bRow = data.find(r => r[0] === race.key && r[1] === 'Blanks');
+      const writein = wRow ? total(wRow, counted) : 0;
+      const blanks  = bRow ? total(bRow, counted) : 0;
+
+      const candTotal = cands.reduce((a, c) => a + c.votes, 0);
+      const anyVotes = candTotal > 0;
+      const tied = anyVotes && cands.length > 1 && cands[0].votes === cands[1].votes;
+
+      // Precinct sub-count: only over communities whose precinct count is known.
+      const knownP = communities.filter(c => c.precincts != null);
+      const allPKnown = knownP.length === communities.length;
+      const precinctsIn = knownP.reduce((a, c) =>
+        a + (c.parts > 1 ? c.inCount : (c.state === 'in' ? c.precincts : 0)), 0);
+      const precinctsTotal = knownP.reduce((a, c) => a + c.precincts, 0);
+
+      return {
+        communities, commIn, commTotal: communities.length, complete,
+        cands, writein, blanks, candTotal, anyVotes, tied,
+        ballots: candTotal + writein + blanks,
+        anyData: rows.some(r => hasData(r, areas)),
+        allPKnown, precinctsIn, precinctsTotal,
+        state: !anyVotes ? 'awaiting' : (complete ? 'complete' : 'leading')
+      };
+    }
+
+    const allComplete = data => RACES.every(r => raceState(r, data).complete);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // RENDER
+    // ─────────────────────────────────────────────────────────────────────────
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    const num = n => n.toLocaleString('en-US');
+
+    function reportPhrase(st) {
+      const base = (st.commIn >= st.commTotal ? 'all ' + st.commTotal : st.commIn + ' of ' + st.commTotal) +
+                   (st.commTotal === 1 ? ' community' : ' communities') + ' reporting';
+      return st.allPKnown ? base + ' &middot; ' + st.precinctsIn + ' of ' + st.precinctsTotal + ' precincts' : base;
+    }
+
+    function raceLeadHtml(race, st) {
+      const rp = reportPhrase(st);
+      let cls = 'race-lead', label, text, sub;
+      if (st.state === 'awaiting') {
+        label = 'District count &middot; ' + rp;
+        text = 'Awaiting first returns';
+        sub = 'Results appear as each community posts its totals.';
+      } else if (st.state === 'complete') {
+        cls += ' complete';
+        label = (ALLOW_CALL ? 'Result' : 'All communities reporting') + ' &middot; ' + rp;
+        text = st.tied ? 'Tied across the district'
+             : esc(st.cands[0].name) + (ALLOW_CALL ? ' wins the nomination' : ' leads the district');
+        sub = 'Unofficial. Totals are compiled from each community as it reports and are ' +
+              'subject to correction until the results are certified.';
+      } else {
+        label = 'Leading &middot; ' + rp;
+        text = st.tied ? 'Tied among communities counted' : esc(st.cands[0].name);
+        sub = 'Counting only the communities that have fully reported — not a projection, ' +
+              'and the communities still out can change this.';
+      }
+      return `<div class="${cls}">
+        <p class="race-lead-label">${label}</p>
+        <p class="race-lead-text">${text}</p>
+        <p class="race-lead-sub">${sub}</p>
+      </div>`;
+    }
+
+    function communitiesHtml(st) {
+      return '<div class="communities">' + st.communities.map(c => {
+        const tick = c.state === 'in' ? '&#10003;' : (c.state === 'partial' ? '&#9679;' : '&#9675;');
+        const sub = c.state === 'partial' ? ` <span class="sub">${c.inCount}/${c.parts}</span>` : '';
+        return `<span class="community ${c.state}"><span class="tick">${tick}</span>${esc(c.label)}${sub}</span>`;
+      }).join('') + '</div>';
+    }
+
+    function homeDetailHtml(race, st) {
+      const c = st.communities.find(x => x.home);
+      if (!c) return '';
+      const which = race.communities.find(x => x.home).areas
+        .map(a => a.replace('Winchester ', ''))
+        .join(', ').replace(/, ([^,]+)$/, ' and $1');
+      return `<p class="home-detail">Winchester precincts ${which} vote in this district &mdash;
+        <strong>${c.inCount} of ${c.parts}</strong> reporting.</p>`;
+    }
+
+    function renderRace(race, data) {
+      const st = raceState(race, data);
+      const rowsHtml = st.cands.map(c => {
+        const isLead = st.anyVotes && !st.tied && c.votes === st.cands[0].votes;
+        const pct = st.candTotal ? (c.votes / st.candTotal * 100) : 0;
+        return `<div class="cand-row${isLead ? ' leading' : ''}">
+            <span class="cand-name"><span class="marker"></span>${esc(c.name)}${
+              c.meta.home ? ` <span class="home">${esc(c.meta.home)}</span>` : ''}</span>
+            <span class="cand-votes">${st.anyData ? num(c.votes) : '&mdash;'}</span>
+            <span class="cand-pct">${st.anyVotes ? pct.toFixed(1) + '%' : '&mdash;'}</span>
+            <span class="cand-bar"><span class="cand-bar-fill" style="width:${pct.toFixed(2)}%"></span></span>
+            ${c.meta.flag ? `<span class="cand-flag">${esc(c.meta.flag)}</span>` : ''}
+          </div>`;
+      }).join('');
+      const d = st.anyData;
+      const unverified = st.allPKnown ? '' :
+        `<p class="unverified">Precinct counts for this district are not yet filled in, so
+         reporting is counted by community.</p>`;
+      return `<section>
+        <h2>${race.title}</h2>
+        <p class="section-sub">${race.party} &middot; ${race.open}</p>
+        ${raceLeadHtml(race, st)}
+        ${communitiesHtml(st)}
+        ${homeDetailHtml(race, st)}
+        ${unverified}
+        <p class="race-report">${reportPhrase(st)} &middot; percentages are of votes counted so far</p>
+        ${rowsHtml}
+        <div class="tallies">
+          <span>Write-in <strong>${d ? num(st.writein) : '&mdash;'}</strong></span>
+          <span>Blank <strong>${d ? num(st.blanks) : '&mdash;'}</strong></span>
+          <span>Ballots counted <strong>${d ? num(st.ballots) : '&mdash;'}</strong></span>
+        </div>
+      </section>`;
+    }
+
+    function render(data) {
+      document.getElementById('races').innerHTML = RACES.map(r => renderRace(r, data)).join('');
+      document.getElementById('complete-banner').classList.toggle('hidden', !allComplete(data));
+      postHeight();
+    }
+
+    function setStatus() {
+      const el = document.getElementById('status');
+      if (!lastUpdated) { el.textContent = 'Loading…'; return; }
+      const h = lastUpdated.getHours(), m = String(lastUpdated.getMinutes()).padStart(2, '0');
+      const t = `${h % 12 || 12}:${m} ${h < 12 ? 'a.m.' : 'p.m.'}`;
+      el.textContent = fetchOk ? 'Live · updated ' + t : 'Results updating… · last good ' + t;
+    }
+
+    async function refresh() { render(await fetchData()); setStatus(); }
+
+    function postHeight() {
+      try {
+        if (window.parent !== window)
+          window.parent.postMessage({ winchesterHeight: document.documentElement.scrollHeight }, '*');
+      } catch (e) {}
+    }
+    window.addEventListener('resize', postHeight);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // DEMO MODE (?demo=1)
+    // ─────────────────────────────────────────────────────────────────────────
+    const SCENARIOS = {
+      'Awaiting':      () => build(0),
+      'Winchester in': () => build(0, true),
+      'Half in':       () => build(0.5),
+      'All in':        () => build(1),
+      'Tie':           () => build(1, false, true)
+    };
+
+    function build(frac, homeOnly, forceTie) {
+      const rows = [];
+      let seed = 11;
+      const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+      for (const race of RACES) {
+        const shares = race.cands.map((_, i) => 1 + rnd() * (race.cands.length - i));
+        const comms = homeOnly ? race.communities.filter(c => c.home)
+                               : race.communities.slice(0, Math.round(race.communities.length * frac));
+        const live = comms.flatMap(c => c.areas);
+        race.cands.concat([{ n: 'Write-in' }, { n: 'Blanks' }]).forEach((c, ci) => {
+          const row = [race.key, c.n, ...COLUMNS.map(() => null)];
+          live.forEach(area => {
+            // A whole city carries far more votes than a single Winchester precinct.
+            const scale = area.startsWith('Winchester') ? 1 : 12;
+            let v;
+            if (c.n === 'Write-in') v = Math.floor(rnd() * 5 * scale);
+            else if (c.n === 'Blanks') v = Math.floor(rnd() * 20 * scale);
+            else v = Math.round(130 * shares[ci] * scale * (0.85 + rnd() * 0.3));
+            row[colIndex(area)] = v;
+          });
+          rows.push(row);
+        });
+      }
+      if (forceTie) {
+        for (const race of RACES) {
+          const areas = raceAreas(race);
+          const cs = rows.filter(r => r[0] === race.key && !['Write-in','Blanks'].includes(r[1]));
+          const totals = cs.map(r => total(r, areas));
+          const max = Math.max(...totals);
+          totals.map((t, i) => [t, i]).sort((a, b) => b[0] - a[0]).slice(0, 2).forEach(([, i]) => {
+            const r = cs[i], a = areas[0];
+            r[colIndex(a)] = (r[colIndex(a)] || 0) + (max - total(r, areas));
+          });
+        }
+      }
+      return rows;
+    }
+
+    function initDemo() {
+      document.body.classList.add('demo');
+      const picker = document.getElementById('picker');
+      Object.keys(SCENARIOS).forEach((name, i) => {
+        const b = document.createElement('button');
+        b.textContent = name;
+        if (i === 2) b.classList.add('active');
+        b.onclick = () => {
+          picker.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+          lastUpdated = new Date(); fetchOk = true;
+          render(SCENARIOS[name]()); setStatus();
+        };
+        picker.appendChild(b);
+      });
+      lastUpdated = new Date();
+      render(SCENARIOS['Half in']());
+      setStatus();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // START
+    // ─────────────────────────────────────────────────────────────────────────
+    (function start() {
+      if (new URLSearchParams(location.search).has('demo')) { initDemo(); return; }
+      const cached = loadCache();
+      if (cached) { lastGood = cached; render(cached); setStatus(); } else { render([]); }
+      refresh();
+      setInterval(refresh, REFRESH_MS);
+    })();
+  </script>
+</body>
+</html>
