@@ -127,8 +127,8 @@ candidate or a community means editing both and regenerating the workbook.
 ## Before it goes live
 
 - [ ] **Finish verifying the ballot.** Names, spellings and both districts' composition are
-      confirmed. Still open: the Tom Hopcroft footnote, and whether either district has a
-      Republican primary at all. Full status in [`CLAUDE.md`](CLAUDE.md).
+      confirmed, and coverage is Democratic-only by editorial decision. Still open: the Tom
+      Hopcroft footnote. Full status in [`CLAUDE.md`](CLAUDE.md).
 - [ ] Enable GitHub Pages — Settings → Pages → branch `main`, path `/`. Nothing is published
       until this is on, and it is what serves `data/results.csv`.
 - [ ] `node test/test.js`, then click through all five demo scenarios.

@@ -189,12 +189,12 @@ Wikipedia, Ballotpedia and `winchesternews.org`. Most of it has since been confi
 
 - [ ] **Tom Hopcroft** — the page footnotes that he suspended campaigning July 31 but stayed on
       the ballot. Confirm it is still accurate; it shows under his name all night.
-- [ ] **Republican primaries** — whether either district has candidates. If so, each is a new
-      entry in `RACES` plus a rerun of `tools/build-sheet.py` and a regenerated `results.csv`. If
-      not, consider saying so on the page.
 - [ ] **Medford's precinct count** — 18 (editor) vs 16 (web search). Affects the 2nd's 65 only.
 
 **Confirmed:**
+
+- [x] **Coverage is Democratic-only** — editor's decision, 2026-08-31. Each race is labeled
+      "Democratic primary" on the page.
 
 - [x] **Candidate names and spellings** — editor, 2026-08-31.
 - [x] **Ballot order** — not required, editor's call. The page sorts by vote total, so configured

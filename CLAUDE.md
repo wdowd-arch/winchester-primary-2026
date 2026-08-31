@@ -166,14 +166,17 @@ been confirmed by the editor against primary sources. **What is still open is li
 - [ ] **Tom Hopcroft** — the page carries a footnote that he suspended active campaigning on
       July 31 but remained on the ballot past the withdrawal deadline. It renders under his name
       all night, so it needs to be right.
-- [ ] **Republican primaries** — whether either district has any candidates at all. Still unknown.
-      If either does, that is a new entry in `RACES`, a rerun of `tools/build-sheet.py` and a
-      regenerated `results.csv`. If neither does, consider saying so on the page: as it stands the
-      page shows two Democratic races and silently implies there is nothing else.
+
 - [ ] **Medford's precinct count** — 18 (editor) against 16 from a web search (8 wards × 2, no
       subprecincts). Affects only the 2nd Middlesex denominator of 65.
 
 ### Confirmed
+
+- [x] **Coverage is Democratic-only — editor's decision, 2026-08-31.** Whether either district
+      has a Republican primary was never established and does not need to be: the page covers the
+      two Democratic races, each labeled "Democratic primary". If that scope ever changes, a new
+      race is an entry in `RACES`, a rerun of `tools/build-sheet.py` and a regenerated
+      `results.csv`.
 
 - [x] **Candidate names and spellings — editor, 2026-08-31.**
       2nd Middlesex: Burhan Azeem, Christine Barber, Tom Hopcroft, Matt McLaughlin,
