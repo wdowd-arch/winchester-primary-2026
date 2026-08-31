@@ -126,11 +126,9 @@ candidate or a community means editing both and regenerating the workbook.
 
 ## Before it goes live
 
-- [ ] **Verify the ballot.** Candidate names, spellings and order, district composition and the
-      Winchester precinct split were assembled from search results, **not from a primary source** —
-      the build environment could not reach the Secretary of the Commonwealth, `mass.gov`,
-      `electionstats.state.ma.us`, Ballotpedia or Wikipedia. Check against the official ballot and
-      the Town and City Clerks. Full checklist in [`CLAUDE.md`](CLAUDE.md).
+- [ ] **Finish verifying the ballot.** Names, spellings and both districts' composition are
+      confirmed. Still open: the Tom Hopcroft footnote, and whether either district has a
+      Republican primary at all. Full status in [`CLAUDE.md`](CLAUDE.md).
 - [ ] Enable GitHub Pages — Settings → Pages → branch `main`, path `/`. Nothing is published
       until this is on, and it is what serves `data/results.csv`.
 - [ ] `node test/test.js`, then click through all five demo scenarios.

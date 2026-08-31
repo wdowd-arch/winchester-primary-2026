@@ -179,26 +179,33 @@ tall enough for the finished page — check it on a phone, where it is tallest.
 
 ---
 
-## Still to verify
+## Verification status
 
-Everything here was assembled from news reporting and search results. The build environment blocks
-outbound web access to `sec.state.ma.us`, `malegislature.gov`, `electionstats.state.ma.us`,
-`mass.gov`, Wikipedia, Ballotpedia and `winchesternews.org`, so **none of it was confirmed against
-a primary source.** Check before polls close:
+Originally assembled from news reporting and search results, because the build environment blocks
+`sec.state.ma.us`, `malegislature.gov`, `electionstats.state.ma.us`, `mass.gov`, MassGIS,
+Wikipedia, Ballotpedia and `winchesternews.org`. Most of it has since been confirmed by the editor.
 
-- [ ] **Candidate names, spellings and ballot order.**
-      2nd Middlesex: Burhan Azeem, Christine Barber, Tom Hopcroft, Matt McLaughlin,
-      Erika Uyterhoeven. 5th Middlesex: Kate Lipper-Garabedian, Carey McDonald, Ryan J. O'Malley.
-- [ ] **Tom Hopcroft** — the page footnotes that he suspended campaigning July 31 but stayed on the
-      ballot. Confirm that is still accurate.
-- [ ] **Republican primaries** — whether either district has candidates. If so, each is a new entry
-      in `RACES` plus a rerun of `tools/build-sheet.py`. If not, consider saying so on the page.
-- [x] **5th Middlesex composition — confirmed by the editor, 2026-08-31:** Malden, Melrose,
-      Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. Matches `RACES`.
-- [ ] **Winchester's own split** — that its 2nd Middlesex precincts are 4, 5, 6 and 7.
-- [x] **Cambridge's ward composition — settled 2026-08-31** against the Cambridge Election Commission's *Wards, Precincts, and State Senate Districts* map (11 wards / 33 precincts, effective 2021-12-31): Wards 10 and 11
-      entire plus W7-1 and W8-1, eleven units, Ward 9 excluded.
-- [ ] **Medford's precinct count** — 18 (editor) vs 16 (web search).
+**Open before polls close:**
+
+- [ ] **Tom Hopcroft** — the page footnotes that he suspended campaigning July 31 but stayed on
+      the ballot. Confirm it is still accurate; it shows under his name all night.
+- [ ] **Republican primaries** — whether either district has candidates. If so, each is a new
+      entry in `RACES` plus a rerun of `tools/build-sheet.py` and a regenerated `results.csv`. If
+      not, consider saying so on the page.
+- [ ] **Medford's precinct count** — 18 (editor) vs 16 (web search). Affects the 2nd's 65 only.
+
+**Confirmed:**
+
+- [x] **Candidate names and spellings** — editor, 2026-08-31.
+- [x] **Ballot order** — not required, editor's call. The page sorts by vote total, so configured
+      order is visible only before any results land.
+- [x] **2nd Middlesex composition** — Somerville, Medford, the Cambridge portion below, Winchester
+      precincts 4-7.
+- [x] **5th Middlesex composition** — editor, 2026-08-31: Malden, Melrose, Reading, Stoneham,
+      Wakefield and Winchester precincts 1, 2, 3 and 8.
+- [x] **Cambridge's ward composition** — 2026-08-31 against the Cambridge Election Commission's *Wards, Precincts, and State Senate Districts* map (11 wards / 33 precincts, effective 2021-12-31): Wards 10 and 11 entire plus W7-1
+      and W8-1, eleven units, Ward 9 excluded. Corroborated by the MassGIS SENATE2021 layer.
+- [x] **Precinct counts** — editor, 2026-08-31, `A` subprecincts included. 5th = 67, 2nd = 65.
 
 ---
 
