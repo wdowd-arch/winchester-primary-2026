@@ -148,7 +148,10 @@ estimates below.** Check against the official ballot and the Town/City Clerks:
 - [ ] **Tom Hopcroft** — the page carries a footnote that he suspended active campaigning on
       July 31 but remained on the ballot past the withdrawal deadline. Confirm.
 - [ ] **Republican primaries** — whether either district has any candidates at all. Unknown.
-- [ ] District composition and Winchester's 4/5/6/7 vs 1/2/3/8 split.
+- [x] **5th Middlesex composition — confirmed by the editor, 2026-08-31.** Malden, Melrose,
+      Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. Matches `RACES` exactly.
+- [ ] **2nd Middlesex composition** — still open. Somerville, Medford, Cambridge **wards 9–11
+      only**, and Winchester precincts 4, 5, 6, 7.
 - [ ] Precinct counts per community — **only if someone wants the precinct line back.** Not
       needed for the page as it now stands. Best figures so far, none from a primary source:
       Medford 16 (8 wards × 2); Reading 8; Malden 24 precincts + 3 sub-precincts = 27, with the

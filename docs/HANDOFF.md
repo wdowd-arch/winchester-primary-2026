@@ -185,8 +185,10 @@ a primary source.** Check before polls close:
       ballot. Confirm that is still accurate.
 - [ ] **Republican primaries** — whether either district has candidates. If so, each is a new entry
       in `RACES` plus a rerun of `tools/build-sheet.py`. If not, consider saying so on the page.
-- [ ] **District composition** — that Cambridge is wards 9–11, and that Winchester's split is still
-      4/5/6/7 and 1/2/3/8.
+- [x] **5th Middlesex composition — confirmed by the editor, 2026-08-31:** Malden, Melrose,
+      Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. Matches `RACES`.
+- [ ] **2nd Middlesex composition** — that Cambridge enters through wards 9–11 only, and that
+      Winchester's other four precincts are 4, 5, 6 and 7.
 - [ ] **Precinct counts per community** — only needed if the district-wide precinct line is ever
       wanted back. Best figures so far, none from a primary source: Medford 16; Reading 8;
       Malden 24 + 3 sub-precincts = 27 with the denominator unclear; Wakefield 6 or 7; Cambridge
