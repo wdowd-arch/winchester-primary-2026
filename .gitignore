@@ -1,0 +1,14 @@
+# Excel lock files, left behind when the workbook is open
+~$*.xlsx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
