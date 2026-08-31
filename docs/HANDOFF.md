@@ -38,12 +38,17 @@ honestly.
 So the page counts **"3 of 6 communities reporting"** and shows a strip of every community with
 its state (in / partial / out). Winchester additionally shows "2 of 4 precincts".
 
-**There is no district-wide precinct denominator.** The machinery for one was removed on
-2026-08-31: it could only ever print "N of M precincts" once counts were verified for all nine
-other municipalities, and until then its only visible effect was a dashed note telling readers a
-number was missing. Winchester still reports precinct by precinct — that part is unchanged and is
-the point of the page. Restoring the district line means verified counts from every clerk in a
-district, not estimates.
+**The precinct sub-count is live for the 5th Middlesex only.** Each community carries a
+`precincts` figure: Malden 27, Melrose 14, Reading 8, Stoneham 7, Wakefield 7, Winchester 4 — 67
+in all, counting the `A` subprecincts that report separately at state elections. The 5th therefore
+reads "3 of 6 communities reporting · 49 of 67 precincts".
+
+The 2nd Middlesex has Somerville 32, Medford 18 and Winchester 4, but **Cambridge is unresolved**,
+so that race prints no precinct line at all. The rule is all-or-nothing per district: a
+denominator built on part of a district would be worse than none.
+
+This changes nothing about entry. A single-column community contributes all its precincts the
+moment its citywide total lands; only Winchester moves the count one precinct at a time.
 
 ---
 
@@ -71,7 +76,7 @@ is an editorial decision, not a technical one.
 | **`tools/enter.py`** | Validated entry: `set` one area's numbers, `show` the current state. |
 | **`tools/build-sheet.py`** | Regenerates the fallback workbook. Race config here must match `RACES`/`COLUMNS` in `index.html`. |
 | **`data/middlesex-senate-primary-2026-results.xlsx`** | Fallback workbook (Results / How to use / District composition). |
-| **`test/test.js`** | `node test/test.js` — 40 assertions on composition, parsing, reporting, call posture and `results.csv`. |
+| **`test/test.js`** | `node test/test.js` — 46 assertions on composition, parsing, reporting, call posture and `results.csv`. |
 | **`data/sample.csv`** | A partially-filled export, for testing the parser without a live sheet. |
 
 Demo mode is a query parameter, not a separate build: `index.html?demo=1` gives a scenario picker
@@ -189,12 +194,13 @@ a primary source.** Check before polls close:
       Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. Matches `RACES`.
 - [ ] **2nd Middlesex composition** — that Cambridge enters through wards 9–11 only, and that
       Winchester's other four precincts are 4, 5, 6 and 7.
-- [ ] **Precinct counts per community** — only needed if the district-wide precinct line is ever
-      wanted back. Best figures so far, none from a primary source: Medford 16; Reading 8;
-      Malden 24 + 3 sub-precincts = 27 with the denominator unclear; Wakefield 6 or 7; Cambridge
-      wards 9–11, Somerville, Stoneham and Melrose unknown. Sources that would settle it: the
-      Secretary of the Commonwealth's district pages, MassGIS "2022 Wards and Precincts",
-      `electionstats.state.ma.us`, or each clerk.
+- [ ] **Cambridge's ward composition — blocks the 2nd Middlesex precinct line, and matters far
+      more than that.** Configured as wards 9–11; the editor gave Ward 7 Precinct 1, Ward 8
+      Precinct 1, Wards 10 and 11 (11 units). Whoever fills that column must know which Cambridge
+      total to copy. Sources that would settle it: the Secretary of the Commonwealth's district
+      pages, MassGIS "2022 Wards and Precincts", `electionstats.state.ma.us`, or the Cambridge
+      Election Commission.
+- [ ] **Medford's precinct count** — 18 (editor) vs 16 (web search).
 
 ---
 

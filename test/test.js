@@ -122,20 +122,39 @@ eq('one race short -> no banner',
   eq('Winchester shows 2 of 4 precincts', [w.inCount, w.parts, w.state], [2, 4, 'partial']);
 }
 
-// ── No district-wide precinct denominator ──
-// Only Winchester is broken out; the other communities report as single units
-// and there is no verified precinct count for them. The reporting line must
-// never claim one.
-RACES.forEach(race => {
-  for (let n = 0; n <= race.communities.length; n++) {
-    if (/precinct/i.test(reportPhrase(raceState(race, fill(race, n, race.cands.map(() => 10)))))) {
-      fails++; console.log('FAIL precinct denominator in ' + race.key + ' at ' + n);
-    }
-  }
-});
-console.log('pass the reporting line never claims a precinct denominator');
-eq('no community carries a precinct count',
-   RACES.flatMap(r => r.communities).filter(c => c.precincts !== undefined), []);
+// ── The precinct sub-count ──
+// Established for the 5th; the 2nd is short its Cambridge figure, so that race
+// must print no denominator at all rather than one built on three of four.
+eq('5th Middlesex totals 67 precincts',
+   [raceState(R5, []).allPKnown, raceState(R5, []).precinctsTotal], [true, 67]);
+eq('2nd Middlesex has no established denominator', raceState(R2, []).allPKnown, false);
+eq('the 2nd never prints a precinct line at any level',
+   Array.from({ length: R2.communities.length + 1 },
+              (_, n) => /precinct/i.test(reportPhrase(raceState(R2, fill(R2, n, [5,4,3,2,1])))))
+     .filter(Boolean), []);
+
+// A citywide posting brings in every precinct behind it, all at once.
+eq('Malden reporting counts all 27 of its precincts',
+   raceState(R5, fill(R5, 1, [10, 5, 3])).precinctsIn, 27);
+eq('Malden + Melrose + Reading = 49 of 67',
+   (st => [st.precinctsIn, st.precinctsTotal])(raceState(R5, fill(R5, 3, [10, 5, 3]))), [49, 67]);
+eq('every community in = 67 of 67',
+   (st => [st.precinctsIn, st.precinctsTotal])(raceState(R5, fill(R5, 6, [10, 5, 3]))), [67, 67]);
+eq('the phrase carries both counts',
+   reportPhrase(raceState(R5, fill(R5, 3, [10, 5, 3]))),
+   '3 of 6 communities reporting &middot; 49 of 67 precincts');
+
+// Winchester is the one community counted precinct by precinct, so it moves the
+// sub-count one at a time rather than in a block.
+{
+  const rows = R5.cands.map(c => {
+    const row = [R5.key, c.n, ...COLUMNS.map(() => null)];
+    ['Winchester P1', 'Winchester P3'].forEach(a => { row[colIndex(a)] = 50; });
+    return row;
+  });
+  eq('two Winchester precincts count as two, not four',
+     raceState(R5, rows).precinctsIn, 2);
+}
 
 // ── The call posture ──
 eq('ALLOW_CALL is off by default', ALLOW_CALL, false);

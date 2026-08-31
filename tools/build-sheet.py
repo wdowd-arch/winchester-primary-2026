@@ -82,6 +82,15 @@ RACES = [
 # Sheet columns C onward, in this exact order. Must equal COLUMNS in index.html.
 COLUMNS = [a for r in RACES for _, areas in r["communities"] for a in areas]
 
+# Precinct/subprecinct reporting units per community, supplied by the editor
+# 2026-08-31, including the "A" subprecincts that report separately at state
+# elections. Cambridge is deliberately absent - see the note on that tab.
+PRECINCTS = {
+    "Somerville": 32, "Medford": 18, "Winchester (precincts 4-7)": 4,
+    "Malden": 27, "Melrose": 14, "Reading": 8, "Stoneham": 7, "Wakefield": 7,
+    "Winchester (precincts 1, 2, 3, 8)": 4,
+}
+
 INK        = "1A1C1E"
 ACCENT     = "1D4E6B"
 HEAD_FILL  = PatternFill("solid", fgColor=ACCENT)
@@ -235,8 +244,8 @@ how.column_dimensions["A"].width = 105
 # DISTRICT COMPOSITION
 # ─────────────────────────────────────────────────────────────────────────────
 ctx = wb.create_sheet("District composition")
-ctx.append(["Race", "Community", "Sheet column(s)", "Reporting unit"])
-for c in range(1, 5):
+ctx.append(["Race", "Community", "Sheet column(s)", "Reporting unit", "Precincts"])
+for c in range(1, 6):
     cell = ctx.cell(row=1, column=c)
     cell.font = Font(bold=True, color="FFFFFF")
     cell.fill = HEAD_FILL
@@ -249,14 +258,16 @@ for race in RACES:
         ctx.cell(row=r, column=4,
                  value="4 precincts, entered separately" if label.startswith("Winchester")
                  else "one town-level total")
-        for c in range(1, 5):
+        ctx.cell(row=r, column=5, value=PRECINCTS.get(label, "TO ESTABLISH"))
+        for c in range(1, 6):
             ctx.cell(row=r, column=c).alignment = Alignment(wrap_text=True, vertical="top")
         r += 1
 r += 1
-ctx.cell(row=r, column=1, value="The reporting unit is the community. Only Winchester is "
-         "broken out precinct by precinct, because that is where our reporters are; every other "
-         "city and town is entered as one posted total. The page counts communities and does "
-         "not print a district-wide precinct denominator.").font = Font(italic=True, size=10)
+ctx.cell(row=r, column=1, value="Entry is by community: only Winchester is typed precinct by "
+         "precinct. The Precincts column is the denominator for the page's secondary "
+         "\"N of M precincts\" line - when a city posts its citywide total, all of its precincts "
+         "count at once. The 5th Middlesex totals 67. The 2nd Middlesex shows no precinct line "
+         "until Cambridge's ward composition is settled.").font = Font(italic=True, size=10)
 r += 2
 ctx.cell(row=r, column=1, value="Candidates as configured").font = Font(bold=True, size=12)
 r += 1
@@ -273,7 +284,7 @@ r += 1
 ctx.cell(row=r, column=1,
          value="VERIFY every name, spelling and ballot order against the official ballot "
                "before polls close.").font = Font(bold=True, color="A03020")
-for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 30)):
+for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 30), ("E", 11)):
     ctx.column_dimensions[col].width = w
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "middlesex-senate-primary-2026-results.xlsx"
