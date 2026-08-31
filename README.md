@@ -8,7 +8,7 @@ live results for both districts, reported community by community, with Wincheste
 precinct by precinct.
 
 ```
-node test/test.js              # 46 assertions — run before every commit
+node test/test.js              # 48 assertions — run before every commit
 python3 tools/enter.py show    # what has been entered so far
 python3 -m http.server 8765    # http://localhost:8765/index.html?demo=1
 ```
@@ -48,12 +48,13 @@ re-election.
 
 | Race | Communities | Winchester |
 |---|---|---|
-| **2nd Middlesex** (D) | Somerville, Medford, **Cambridge wards 9–11 only**, Winchester | precincts 4, 5, 6, 7 |
+| **2nd Middlesex** (D) | Somerville, Medford, **Cambridge Wards 10 & 11 + W7-1, W8-1**, Winchester | precincts 4, 5, 6, 7 |
 | **5th Middlesex** (D) | Malden, Melrose, Reading, Stoneham, Wakefield, Winchester | precincts 1, 2, 3, 8 |
 
-**Cambridge is in the 2nd Middlesex through wards 9, 10 and 11 only.** A citywide Cambridge total
-would count voters outside the district — the single easiest way to corrupt that number. The sheet
-column is labeled `Cambridge W9-11` for exactly that reason.
+**Cambridge is in the 2nd Middlesex through Wards 10 and 11 entire, plus Ward 7 Precinct 1 and
+Ward 8 Precinct 1.** Ward 9 is not in this district. Cambridge is split across three senate
+districts, so a citywide total would count voters from two others — the single easiest way to
+corrupt that number. The column is labeled `Cambridge W10 W11 W7-1 W8-1` for exactly that reason.
 
 ---
 
@@ -68,9 +69,8 @@ filled by hand. Winchester is broken out precinct by precinct because that is wh
 are. The page reads "3 of 6 communities reporting," plus "2 of 4 precincts" for Winchester.
 
 A secondary precinct count rides on top where every community in a district has an established
-figure — the 5th Middlesex reads "· 49 of 67 precincts". It changes nothing about entry: a city's
-citywide total brings in all of its precincts at once. The 2nd Middlesex omits the line until
-Cambridge's composition is settled.
+figure: the 5th Middlesex totals 67 and the 2nd 65. It changes nothing about entry — a city's
+citywide total brings in all of its precincts at once.
 
 **The page does not call winners.** `ALLOW_CALL` is `false`. Partial reads "Leading"; complete
 reads "X leads the district," marked unofficial. Never "wins" or "elected." These totals are

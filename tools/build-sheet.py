@@ -30,8 +30,12 @@ from openpyxl.worksheet.datavalidation import DataValidation
 # ── Must match RACES / COLUMNS in ../index.html ───────────────────────────────
 #
 # Statutory district composition (2021 redistricting, effective 2022):
-#   2nd Middlesex - Cambridge wards 9-11, all of Medford, all of Somerville,
-#                   and Winchester precincts 4-7.
+#   2nd Middlesex - all of Medford, all of Somerville, Winchester precincts 4-7,
+#                   and the Cambridge portion: Wards 10 and 11 entire plus Ward 7
+#                   Precinct 1 and Ward 8 Precinct 1. Cambridge Ward 9 is NOT in
+#                   this district (it is Suffolk and Middlesex). Confirmed against
+#                   the Cambridge Election Commission ward/precinct/senate-district
+#                   map, effective 2021-12-31.
 #   5th Middlesex - all of Malden, Melrose, Reading, Stoneham and Wakefield,
 #                   and Winchester precincts 1, 2, 3 and 8.
 #
@@ -46,7 +50,8 @@ RACES = [
         "communities": [
             ("Somerville", ["Somerville"]),
             ("Medford", ["Medford"]),
-            ("Cambridge (wards 9-11)", ["Cambridge W9-11"]),
+            ("Cambridge (Wards 10, 11 + 7-1, 8-1)",
+             ["Cambridge W10 W11 W7-1 W8-1"]),
             ("Winchester (precincts 4-7)",
              ["Winchester P4", "Winchester P5", "Winchester P6", "Winchester P7"]),
         ],
@@ -86,7 +91,7 @@ COLUMNS = [a for r in RACES for _, areas in r["communities"] for a in areas]
 # 2026-08-31, including the "A" subprecincts that report separately at state
 # elections. Cambridge is deliberately absent - see the note on that tab.
 PRECINCTS = {
-    "Somerville": 32, "Medford": 18, "Winchester (precincts 4-7)": 4,
+    "Somerville": 32, "Medford": 18, "Cambridge (Wards 10, 11 + 7-1, 8-1)": 11, "Winchester (precincts 4-7)": 4,
     "Malden": 27, "Melrose": 14, "Reading": 8, "Stoneham": 7, "Wakefield": 7,
     "Winchester (precincts 1, 2, 3, 8)": 4,
 }
@@ -206,10 +211,12 @@ lines = [
     ("Winchester - our reporters, precinct by precinct, eight precincts split between the "
      "two districts (4, 5, 6, 7 in the 2nd; 1, 2, 3, 8 in the 5th).", ""),
     ("Every other community - that city or town's own posted results, entered as one total "
-     "per candidate. Somerville, Medford and Cambridge wards 9-11 for the 2nd Middlesex; "
+     "per candidate. Somerville, Medford and the Cambridge portion for the 2nd Middlesex; "
      "Malden, Melrose, Reading, Stoneham and Wakefield for the 5th.", ""),
-    ("Cambridge is in the 2nd Middlesex only for WARDS 9, 10 and 11. Do not enter a "
-     "citywide Cambridge total - it would count voters who are not in this district.", ""),
+    ("Cambridge is in the 2nd Middlesex only for WARDS 10 and 11 plus Ward 7 Precinct 1 "
+     "and Ward 8 Precinct 1 - eleven reporting units in all. Ward 9 is NOT in this district. "
+     "Do not enter a citywide Cambridge total: it would count voters who are not in this "
+     "district.", ""),
     ("", ""),
     ("What the page will and will not say", "h2"),
     ("It shows who is LEADING among the communities that have fully reported, and which "

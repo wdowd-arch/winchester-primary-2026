@@ -12,15 +12,17 @@ From the 2021 redistricting (effective 2022):
 
 | Race | Communities | Winchester's share |
 |---|---|---|
-| **State Senate · 2nd Middlesex** (D) | Somerville (all), Medford (all), **Cambridge wards 9–11 only**, Winchester precincts 4–7 | 4 of the town's 8 precincts |
+| **State Senate · 2nd Middlesex** (D) | Somerville (all), Medford (all), **Cambridge Wards 10 and 11 plus W7-1 and W8-1**, Winchester precincts 4–7 | 4 of the town's 8 precincts |
 | **State Senate · 5th Middlesex** (D) | Malden, Melrose, Reading, Stoneham, Wakefield (all), Winchester precincts 1, 2, 3, 8 | the other 4 precincts |
 
 Both seats are open — Sen. Patricia Jehlen (2nd) and Sen. Jason Lewis (5th) are not seeking
 re-election.
 
-**Cambridge is in the 2nd Middlesex for wards 9, 10 and 11 only.** A citywide Cambridge total
-would count voters who are not in this district. This is the single easiest way to corrupt the
-2nd Middlesex number.
+**Cambridge is in the 2nd Middlesex for Wards 10 and 11 entire, plus Ward 7 Precinct 1 and Ward 8
+Precinct 1** — eleven reporting units. **Ward 9 is not in this district** (it is Suffolk and
+Middlesex). Cambridge is split across three senate districts, so a citywide total would count
+voters from two others. This is the single easiest way to corrupt the 2nd Middlesex number.
+Confirmed 2026-08-31 against the Cambridge Election Commission's *Wards, Precincts, and State Senate Districts* map (11 wards / 33 precincts, effective 2021-12-31).
 
 ---
 
@@ -43,9 +45,9 @@ its state (in / partial / out). Winchester additionally shows "2 of 4 precincts"
 in all, counting the `A` subprecincts that report separately at state elections. The 5th therefore
 reads "3 of 6 communities reporting · 49 of 67 precincts".
 
-The 2nd Middlesex has Somerville 32, Medford 18 and Winchester 4, but **Cambridge is unresolved**,
-so that race prints no precinct line at all. The rule is all-or-nothing per district: a
-denominator built on part of a district would be worse than none.
+The 2nd Middlesex totals 65: Somerville 32, Medford 18, Cambridge 11, Winchester 4. The rule is
+all-or-nothing per district — a denominator built on part of a district would be worse than none —
+and both districts now clear it.
 
 This changes nothing about entry. A single-column community contributes all its precincts the
 moment its citywide total lands; only Winchester moves the count one precinct at a time.
@@ -76,7 +78,7 @@ is an editorial decision, not a technical one.
 | **`tools/enter.py`** | Validated entry: `set` one area's numbers, `show` the current state. |
 | **`tools/build-sheet.py`** | Regenerates the fallback workbook. Race config here must match `RACES`/`COLUMNS` in `index.html`. |
 | **`data/middlesex-senate-primary-2026-results.xlsx`** | Fallback workbook (Results / How to use / District composition). |
-| **`test/test.js`** | `node test/test.js` — 46 assertions on composition, parsing, reporting, call posture and `results.csv`. |
+| **`test/test.js`** | `node test/test.js` — 48 assertions on composition, parsing, reporting, call posture and `results.csv`. |
 | **`data/sample.csv`** | A partially-filled export, for testing the parser without a live sheet. |
 
 Demo mode is a query parameter, not a separate build: `index.html?demo=1` gives a scenario picker
@@ -111,7 +113,8 @@ decorative title and spacer rows are ignored.
   `Fifth Middlesex Senate - Democratic`. ASCII, plain hyphen. If this drifts, that race vanishes.
 - **Column B = item:** a candidate name, `Write-in`, or `Blanks`.
 - **Columns C onward = the 16 reporting areas**, in the order of `COLUMNS`:
-  Somerville, Medford, Cambridge W9-11, Winchester P4–P7, Malden, Melrose, Reading, Stoneham,
+  Somerville, Medford, Cambridge W10 W11 W7-1 W8-1, Winchester P4–P7, Malden, Melrose, Reading,
+  Stoneham,
   Wakefield, Winchester P1, P2, P3, P8. Never insert or delete a column.
 - **A blank cell parses to `null`, not `0`.** A real `0` stays `0`. This separates "hasn't
   reported" from "reported zero" and drives the em-dash.
@@ -192,14 +195,9 @@ a primary source.** Check before polls close:
       in `RACES` plus a rerun of `tools/build-sheet.py`. If not, consider saying so on the page.
 - [x] **5th Middlesex composition — confirmed by the editor, 2026-08-31:** Malden, Melrose,
       Reading, Stoneham, Wakefield and Winchester precincts 1, 2, 3 and 8. Matches `RACES`.
-- [ ] **2nd Middlesex composition** — that Cambridge enters through wards 9–11 only, and that
-      Winchester's other four precincts are 4, 5, 6 and 7.
-- [ ] **Cambridge's ward composition — blocks the 2nd Middlesex precinct line, and matters far
-      more than that.** Configured as wards 9–11; the editor gave Ward 7 Precinct 1, Ward 8
-      Precinct 1, Wards 10 and 11 (11 units). Whoever fills that column must know which Cambridge
-      total to copy. Sources that would settle it: the Secretary of the Commonwealth's district
-      pages, MassGIS "2022 Wards and Precincts", `electionstats.state.ma.us`, or the Cambridge
-      Election Commission.
+- [ ] **Winchester's own split** — that its 2nd Middlesex precincts are 4, 5, 6 and 7.
+- [x] **Cambridge's ward composition — settled 2026-08-31** against the Cambridge Election Commission's *Wards, Precincts, and State Senate Districts* map (11 wards / 33 precincts, effective 2021-12-31): Wards 10 and 11
+      entire plus W7-1 and W8-1, eleven units, Ward 9 excluded.
 - [ ] **Medford's precinct count** — 18 (editor) vs 16 (web search).
 
 ---
