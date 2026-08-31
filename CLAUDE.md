@@ -15,7 +15,7 @@ anything.
 
 | | |
 |---|---|
-| Widget | **Built and tested.** `node test/test.js` — 39 assertions, all passing. |
+| Widget | **Built and tested.** `node test/test.js` — 40 assertions, all passing. |
 | Results feed | **Live path is `data/results.csv` in this repo.** `CSV_URL` points at it relatively. |
 | Google Sheet | **Not used.** Dropped as the live source — see "How results get in". |
 | Workbook | **Built, now a fallback.** `data/middlesex-senate-primary-2026-results.xlsx`. |
@@ -33,7 +33,7 @@ README.md       orientation for a human arriving at the repo
 docs/HANDOFF.md the full technical brief
 data/           results.csv (the live feed), the fallback workbook, sample.csv
 tools/          enter.py — writes results.csv; build-sheet.py — rebuilds the workbook
-test/           test.js — the 39-assertion suite
+test/           test.js — the 40-assertion suite
 ```
 
 `index.html` must stay at the repo root: GitHub Pages serves the site root from `main`, and the
@@ -93,10 +93,14 @@ across all of them. That was scoped back deliberately:
 So the page reports **"3 of 6 communities reporting"** plus a strip showing every community as
 in / partial / out, and Winchester additionally as "2 of 4 precincts".
 
-The precinct machinery is **wired in but dormant**: every community has a `precincts` field in
-`RACES`, `null` for all but Winchester. When every community in a district has a verified number,
-the page automatically adds a "N of M precincts" line. Until then it omits it rather than printing
-a denominator nobody verified.
+There is **no district-wide precinct denominator**, and the machinery for one has been removed
+(2026-08-31, at the user's direction). It existed only to print "N of M precincts" once someone
+verified counts for all nine other municipalities; its one visible effect was a dashed box telling
+readers a number was missing. A lookup attempt that day got Medford (16) and Reading (8) with
+moderate confidence and nothing usable for Somerville, Cambridge W9-11, Stoneham, Wakefield or
+Melrose — every primary source is blocked by the build environment's egress proxy. If the clerks
+supply verified counts later, the feature is one commit to restore; a wrong denominator is wrong
+on the page all night, so do not restore it from estimates.
 
 ### 2. The page does not call winners
 
@@ -145,9 +149,10 @@ estimates below.** Check against the official ballot and the Town/City Clerks:
       July 31 but remained on the ballot past the withdrawal deadline. Confirm.
 - [ ] **Republican primaries** — whether either district has any candidates at all. Unknown.
 - [ ] District composition and Winchester's 4/5/6/7 vs 1/2/3/8 split.
-- [ ] Precinct counts per community, only if the precinct line is wanted. Unverified working
-      figures, **not for shipping**: Cambridge W9–11 ≈ 9; Medford ≈ 16–17; Somerville ≈ 21+
-      (has sub-precincts 2A/3A/4A); Malden ≈ 24–27; Reading ≈ 8; Stoneham ≈ 7; Wakefield ≈ 7;
+- [ ] Precinct counts per community — **only if someone wants the precinct line back.** Not
+      needed for the page as it now stands. Best figures so far, none from a primary source:
+      Medford 16 (8 wards × 2); Reading 8; Malden 24 precincts + 3 sub-precincts = 27, with the
+      right denominator unclear; Wakefield 6 or 7; Cambridge W9–11, Somerville, Stoneham and
       Melrose unknown.
 
 ---

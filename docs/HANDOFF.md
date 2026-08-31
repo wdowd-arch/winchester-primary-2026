@@ -38,10 +38,12 @@ honestly.
 So the page counts **"3 of 6 communities reporting"** and shows a strip of every community with
 its state (in / partial / out). Winchester additionally shows "2 of 4 precincts".
 
-**Precinct counts are wired in but not filled.** Each community has a `precincts` field in
-`RACES`, currently `null` for everything except Winchester. When every community in a district has
-a verified number, the page automatically adds a secondary "N of M precincts" line. Until then it
-omits it rather than printing a figure we cannot stand behind. See **Still to verify**.
+**There is no district-wide precinct denominator.** The machinery for one was removed on
+2026-08-31: it could only ever print "N of M precincts" once counts were verified for all nine
+other municipalities, and until then its only visible effect was a dashed note telling readers a
+number was missing. Winchester still reports precinct by precinct — that part is unchanged and is
+the point of the page. Restoring the district line means verified counts from every clerk in a
+district, not estimates.
 
 ---
 
@@ -69,7 +71,7 @@ is an editorial decision, not a technical one.
 | **`tools/enter.py`** | Validated entry: `set` one area's numbers, `show` the current state. |
 | **`tools/build-sheet.py`** | Regenerates the fallback workbook. Race config here must match `RACES`/`COLUMNS` in `index.html`. |
 | **`data/middlesex-senate-primary-2026-results.xlsx`** | Fallback workbook (Results / How to use / District composition). |
-| **`test/test.js`** | `node test/test.js` — 39 assertions on composition, parsing, reporting, call posture and `results.csv`. |
+| **`test/test.js`** | `node test/test.js` — 40 assertions on composition, parsing, reporting, call posture and `results.csv`. |
 | **`data/sample.csv`** | A partially-filled export, for testing the parser without a live sheet. |
 
 Demo mode is a query parameter, not a separate build: `index.html?demo=1` gives a scenario picker
@@ -185,12 +187,12 @@ a primary source.** Check before polls close:
       in `RACES` plus a rerun of `tools/build-sheet.py`. If not, consider saying so on the page.
 - [ ] **District composition** — that Cambridge is wards 9–11, and that Winchester's split is still
       4/5/6/7 and 1/2/3/8.
-- [ ] **Precinct counts per community**, if you want the precinct line. Unverified working figures
-      that must NOT be shipped without checking: Cambridge wards 9–11 ≈ 9 (Cambridge has 11 wards /
-      33 precincts); Medford ≈ 16–17; Somerville ≈ 21+ with sub-precincts (2A, 3A, 4A);
-      Malden ≈ 24–27; Reading ≈ 8; Stoneham ≈ 7; Wakefield ≈ 7; Melrose unknown.
-      Sources that would settle it: the Secretary of the Commonwealth's district pages,
-      MassGIS "2022 Wards and Precincts", `electionstats.state.ma.us`, or each clerk.
+- [ ] **Precinct counts per community** — only needed if the district-wide precinct line is ever
+      wanted back. Best figures so far, none from a primary source: Medford 16; Reading 8;
+      Malden 24 + 3 sub-precincts = 27 with the denominator unclear; Wakefield 6 or 7; Cambridge
+      wards 9–11, Somerville, Stoneham and Melrose unknown. Sources that would settle it: the
+      Secretary of the Commonwealth's district pages, MassGIS "2022 Wards and Precincts",
+      `electionstats.state.ma.us`, or each clerk.
 
 ---
 

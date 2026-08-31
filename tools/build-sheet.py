@@ -235,8 +235,8 @@ how.column_dimensions["A"].width = 105
 # DISTRICT COMPOSITION
 # ─────────────────────────────────────────────────────────────────────────────
 ctx = wb.create_sheet("District composition")
-ctx.append(["Race", "Community", "Sheet column(s)", "Precinct count", "Verified?"])
-for c in range(1, 6):
+ctx.append(["Race", "Community", "Sheet column(s)", "Reporting unit"])
+for c in range(1, 5):
     cell = ctx.cell(row=1, column=c)
     cell.font = Font(bold=True, color="FFFFFF")
     cell.fill = HEAD_FILL
@@ -246,20 +246,17 @@ for race in RACES:
         ctx.cell(row=r, column=1, value=race["title"])
         ctx.cell(row=r, column=2, value=label)
         ctx.cell(row=r, column=3, value=", ".join(areas))
-        if label.startswith("Winchester"):
-            ctx.cell(row=r, column=4, value=4)
-            ctx.cell(row=r, column=5, value="confirmed")
-        else:
-            ctx.cell(row=r, column=4, value="")
-            ctx.cell(row=r, column=5, value="TO VERIFY").font = Font(bold=True, color="A03020")
-        for c in range(1, 6):
+        ctx.cell(row=r, column=4,
+                 value="4 precincts, entered separately" if label.startswith("Winchester")
+                 else "one town-level total")
+        for c in range(1, 5):
             ctx.cell(row=r, column=c).alignment = Alignment(wrap_text=True, vertical="top")
         r += 1
 r += 1
-ctx.cell(row=r, column=1, value="Fill in the precinct counts from the Secretary of the "
-         "Commonwealth or each clerk, then copy them into RACES[].communities[].precincts in "
-         "index.html. Until every community in a district has a number, the page counts "
-         "communities only and hides the precinct line.").font = Font(italic=True, size=10)
+ctx.cell(row=r, column=1, value="The reporting unit is the community. Only Winchester is "
+         "broken out precinct by precinct, because that is where our reporters are; every other "
+         "city and town is entered as one posted total. The page counts communities and does "
+         "not print a district-wide precinct denominator.").font = Font(italic=True, size=10)
 r += 2
 ctx.cell(row=r, column=1, value="Candidates as configured").font = Font(bold=True, size=12)
 r += 1
@@ -276,7 +273,7 @@ r += 1
 ctx.cell(row=r, column=1,
          value="VERIFY every name, spelling and ballot order against the official ballot "
                "before polls close.").font = Font(bold=True, color="A03020")
-for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 15), ("E", 14)):
+for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 30)):
     ctx.column_dimensions[col].width = w
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "middlesex-senate-primary-2026-results.xlsx"

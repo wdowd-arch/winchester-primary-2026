@@ -8,7 +8,7 @@ live results for both districts, reported community by community, with Wincheste
 precinct by precinct.
 
 ```
-node test/test.js              # 39 assertions — run before every commit
+node test/test.js              # 40 assertions — run before every commit
 python3 tools/enter.py show    # what has been entered so far
 python3 -m http.server 8765    # http://localhost:8765/index.html?demo=1
 ```
@@ -64,8 +64,9 @@ Neither should be undone without talking to the desk.
 **The reporting unit is the community, not the precinct — except in Winchester.** Other cities and
 towns post town-level totals on election night; they do not feed precinct tapes to an out-of-town
 newsroom. A full-district denominator would be roughly 90 precincts and could never be honestly
-filled. Winchester is broken out precinct by precinct because that is where our reporters are. So
-the page reads "3 of 6 communities reporting," plus "2 of 4 precincts" for Winchester.
+filled, so the page does not print one. Winchester is broken out precinct by precinct because that
+is where our reporters are. The page reads "3 of 6 communities reporting," plus "2 of 4 precincts"
+for Winchester.
 
 **The page does not call winners.** `ALLOW_CALL` is `false`. Partial reads "Leading"; complete
 reads "X leads the district," marked unofficial. Never "wins" or "elected." These totals are

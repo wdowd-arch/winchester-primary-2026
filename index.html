@@ -180,10 +180,6 @@
       border-left: 3px solid var(--accent); font-size: 12.5px; color: var(--muted-ink);
     }
     .home-detail strong { color: var(--ink); }
-    .unverified {
-      font-size: 12px; font-style: italic; color: var(--accent-2);
-      margin: 0 0 14px; padding: 8px 12px; border: 1px dashed var(--accent-2);
-    }
 
     @media (max-width: 760px) {
       .container { padding: 22px 16px 48px; }
@@ -269,11 +265,10 @@
     //   5th Middlesex - all of Malden, Melrose, Reading, Stoneham and Wakefield,
     //                   and Winchester precincts 1, 2, 3 and 8.
     //
-    // `precincts` is the number of precincts inside a community, used only for
-    // the secondary "N precincts" line. null means NOT YET VERIFIED - the page
-    // simply omits the precinct line for that community rather than printing a
-    // number we are not sure of. Fill these in from the Secretary of the
-    // Commonwealth or each clerk before election night. See docs/HANDOFF.md.
+    // The reporting unit is the COMMUNITY. Only Winchester is broken out by
+    // precinct, because that is where our own reporters are; every other city
+    // and town is one column, entered from its own posted total. There is no
+    // district-wide precinct denominator - see docs/HANDOFF.md.
     // ─────────────────────────────────────────────────────────────────────────
     const RACES = [
       {
@@ -282,10 +277,10 @@
         party: 'Democratic primary',
         open: 'Open seat. Sen. Patricia Jehlen is not seeking re-election.',
         communities: [
-          { label: 'Somerville',            areas: ['Somerville'],       precincts: null },
-          { label: 'Medford',               areas: ['Medford'],          precincts: null },
-          { label: 'Cambridge (wards 9-11)',areas: ['Cambridge W9-11'],  precincts: null },
-          { label: 'Winchester (4-7)',      home: true, precincts: 4,
+          { label: 'Somerville',            areas: ['Somerville'] },
+          { label: 'Medford',               areas: ['Medford'] },
+          { label: 'Cambridge (wards 9-11)',areas: ['Cambridge W9-11'] },
+          { label: 'Winchester (4-7)',      home: true,
             areas: ['Winchester P4', 'Winchester P5', 'Winchester P6', 'Winchester P7'] }
         ],
         cands: [
@@ -303,12 +298,12 @@
         party: 'Democratic primary',
         open: 'Open seat. Sen. Jason Lewis is not seeking re-election.',
         communities: [
-          { label: 'Malden',           areas: ['Malden'],    precincts: null },
-          { label: 'Melrose',          areas: ['Melrose'],   precincts: null },
-          { label: 'Reading',          areas: ['Reading'],   precincts: null },
-          { label: 'Stoneham',         areas: ['Stoneham'],  precincts: null },
-          { label: 'Wakefield',        areas: ['Wakefield'], precincts: null },
-          { label: 'Winchester (1-3, 8)', home: true, precincts: 4,
+          { label: 'Malden',           areas: ['Malden'],    },
+          { label: 'Melrose',          areas: ['Melrose'],   },
+          { label: 'Reading',          areas: ['Reading'],   },
+          { label: 'Stoneham',         areas: ['Stoneham'],  },
+          { label: 'Wakefield',        areas: ['Wakefield'], },
+          { label: 'Winchester (1-3, 8)', home: true,
             areas: ['Winchester P1', 'Winchester P2', 'Winchester P3', 'Winchester P8'] }
         ],
         cands: [
@@ -426,7 +421,7 @@
         // needs to see that someone is mid-entry rather than that it is untouched.
         const started = c.areas.some(a => rows.some(r => cellAt(r, a) !== null && cellAt(r, a) !== undefined));
         return {
-          label: c.label, home: !!c.home, precincts: c.precincts,
+          label: c.label, home: !!c.home,
           parts: c.areas.length, inCount,
           state: inCount === c.areas.length ? 'in' : (started ? 'partial' : 'out')
         };
@@ -458,19 +453,11 @@
       const anyVotes = candTotal > 0;
       const tied = anyVotes && cands.length > 1 && cands[0].votes === cands[1].votes;
 
-      // Precinct sub-count: only over communities whose precinct count is known.
-      const knownP = communities.filter(c => c.precincts != null);
-      const allPKnown = knownP.length === communities.length;
-      const precinctsIn = knownP.reduce((a, c) =>
-        a + (c.parts > 1 ? c.inCount : (c.state === 'in' ? c.precincts : 0)), 0);
-      const precinctsTotal = knownP.reduce((a, c) => a + c.precincts, 0);
-
       return {
         communities, commIn, commTotal: communities.length, complete,
         cands, writein, blanks, candTotal, anyVotes, tied,
         ballots: candTotal + writein + blanks,
         anyData: rows.some(r => hasData(r, areas)),
-        allPKnown, precinctsIn, precinctsTotal,
         state: !anyVotes ? 'awaiting' : (complete ? 'complete' : 'leading')
       };
     }
@@ -486,7 +473,7 @@
     function reportPhrase(st) {
       const base = (st.commIn >= st.commTotal ? 'all ' + st.commTotal : st.commIn + ' of ' + st.commTotal) +
                    (st.commTotal === 1 ? ' community' : ' communities') + ' reporting';
-      return st.allPKnown ? base + ' &middot; ' + st.precinctsIn + ' of ' + st.precinctsTotal + ' precincts' : base;
+      return base;
     }
 
     function raceLeadHtml(race, st) {
@@ -549,16 +536,12 @@
           </div>`;
       }).join('');
       const d = st.anyData;
-      const unverified = st.allPKnown ? '' :
-        `<p class="unverified">Precinct counts for this district are not yet filled in, so
-         reporting is counted by community.</p>`;
       return `<section>
         <h2>${race.title}</h2>
         <p class="section-sub">${race.party} &middot; ${race.open}</p>
         ${raceLeadHtml(race, st)}
         ${communitiesHtml(st)}
         ${homeDetailHtml(race, st)}
-        ${unverified}
         <p class="race-report">${reportPhrase(st)} &middot; percentages are of votes counted so far</p>
         ${rowsHtml}
         <div class="tallies">

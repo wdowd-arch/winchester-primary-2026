@@ -122,9 +122,20 @@ eq('one race short -> no banner',
   eq('Winchester shows 2 of 4 precincts', [w.inCount, w.parts, w.state], [2, 4, 'partial']);
 }
 
-// ── Precinct sub-count is suppressed while any count is unverified ──
-eq('precinct line hidden when counts unknown',
-   /precincts/.test(reportPhrase(raceState(R2, fill(R2, 4, [1,2,3,4,5])))), false);
+// ── No district-wide precinct denominator ──
+// Only Winchester is broken out; the other communities report as single units
+// and there is no verified precinct count for them. The reporting line must
+// never claim one.
+RACES.forEach(race => {
+  for (let n = 0; n <= race.communities.length; n++) {
+    if (/precinct/i.test(reportPhrase(raceState(race, fill(race, n, race.cands.map(() => 10)))))) {
+      fails++; console.log('FAIL precinct denominator in ' + race.key + ' at ' + n);
+    }
+  }
+});
+console.log('pass the reporting line never claims a precinct denominator');
+eq('no community carries a precinct count',
+   RACES.flatMap(r => r.communities).filter(c => c.precincts !== undefined), []);
 
 // ── The call posture ──
 eq('ALLOW_CALL is off by default', ALLOW_CALL, false);
