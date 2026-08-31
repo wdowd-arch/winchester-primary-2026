@@ -3,13 +3,13 @@
 Election-night results widget for the **Massachusetts state primary, Tuesday, Sept. 1, 2026**,
 covering the two open state Senate seats on Winchester's ballot. A **Winchester News** count.
 
-One self-contained HTML page reads a published Google Sheet as CSV every 15 seconds and renders
+One self-contained HTML page reads `data/results.csv` from this repo every 15 seconds and renders
 live results for both districts, reported community by community, with Winchester broken out
 precinct by precinct.
 
 ```
-node test/test.js              # 28 assertions — run before every commit
-python3 tools/build-sheet.py   # regenerate the reporter workbook into data/
+node test/test.js              # 39 assertions — run before every commit
+python3 tools/enter.py show    # what has been entered so far
 python3 -m http.server 8765    # http://localhost:8765/index.html?demo=1
 ```
 
@@ -27,10 +27,13 @@ CLAUDE.md                   cold-start orientation: project state, decisions, op
 README.md                   this file
 docs/HANDOFF.md             the full technical brief — data contract, counting rules, setup
 data/
-  middlesex-senate-primary-2026-results.xlsx   the reporter data-entry workbook
+  results.csv                                  THE LIVE FILE — what the page fetches
+  middlesex-senate-primary-2026-results.xlsx   fallback workbook, if a human types instead
   sample.csv                                   a partly-filled export, for parser testing
-tools/build-sheet.py        regenerates the workbook into data/
-test/test.js                composition, parsing, reporting and call-posture tests
+tools/
+  enter.py                                     writes results.csv by name, with validation
+  build-sheet.py                               regenerates the fallback workbook
+test/test.js                composition, parsing, reporting, call posture, results.csv
 ```
 
 `index.html` stays at the repo root — GitHub Pages serves the site root from `main`, and the
@@ -76,9 +79,28 @@ renders every race at every reporting level and fails if winner language appears
 ## How the count works
 
 ```
-Community totals + Winchester precinct tapes → Google Sheet (Results tab)
-    → published CSV → index.html fetch() every 15s → parse + render → iframe in the article
+Community postings + Winchester precinct tapes → tools/enter.py → data/results.csv
+    → commit + push → Pages → index.html fetch() every 15s → parse + render → iframe
 ```
+
+`CSV_URL` is the relative path `data/results.csv`, so the same file works locally and deployed,
+same-origin, with no third-party service between the newsroom and the numbers. Entry goes through
+`tools/enter.py`, which resolves the race, the area and the candidate by name against the file
+itself and refuses anything it cannot match exactly once — hand-editing a 16-column CSV mid-count
+is how a number lands in the wrong community:
+
+```
+python3 tools/enter.py set 2nd Somerville Azeem=2431 Barber=3102 Hopcroft=1890 \
+    McLaughlin=1204 Uyterhoeven=2755 Write-in=12 Blanks=88
+python3 tools/enter.py set 5th P1 Lipper=204 McDonald=188 O\'Malley=97
+python3 tools/enter.py set 2nd Somerville Azeem=2439      # a correction
+python3 tools/enter.py set 2nd Somerville Azeem=-         # back to not-reported
+python3 tools/enter.py show --race 5th
+```
+
+Every change prints as `old -> new`, and each write reports whether that area is now fully
+reporting or which candidates are still blank. Then commit and push; Pages redeploys and the page
+picks it up on its next poll.
 
 - A blank cell parses to `null`, never `0`; a real `0` stays `0`. That distinction separates
   "hasn't reported" from "reported zero" and drives the em-dash.
@@ -104,11 +126,15 @@ candidate or a community means editing both and regenerating the workbook.
       the build environment could not reach the Secretary of the Commonwealth, `mass.gov`,
       `electionstats.state.ma.us`, Ballotpedia or Wikipedia. Check against the official ballot and
       the Town and City Clerks. Full checklist in [`CLAUDE.md`](CLAUDE.md).
-- [ ] Publish the workbook's `Results` tab to the web as CSV and paste the URL into `CSV_URL` at
-      the top of the script in `index.html`.
+- [ ] Enable GitHub Pages — Settings → Pages → branch `main`, path `/`. Nothing is published
+      until this is on, and it is what serves `data/results.csv`.
 - [ ] `node test/test.js`, then click through all five demo scenarios.
-- [ ] Enable GitHub Pages — Settings → Pages → branch `main`, path `/`.
-- [ ] Share the Sheet as Editor with whoever is typing, and dry-run with them before Tuesday.
+- [ ] **Time one round trip before polls close** — an `enter.py` write, a push, and however long
+      Pages actually takes to serve the new CSV. That number sets the floor on how stale the page
+      can be, and nobody has measured it yet.
+- [ ] Decide the fallback if Pages is slow or GitHub is down: `data/middlesex-senate-primary-2026-results.xlsx`
+      still builds a Google Sheet a human can type into, and `CSV_URL` can be repointed at its
+      published CSV in one edit.
 - [ ] Branding pass. `--accent: #1D4E6B`, the text wordmark and the Georgia typography are
       placeholders carried over from the Marblehead build, not Winchester News house style.
 

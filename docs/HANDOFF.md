@@ -65,9 +65,11 @@ is an editorial decision, not a technical one.
 | File | Role |
 |---|---|
 | **`index.html`** | The whole widget — self-contained, no build step. Edit directly. |
-| **`tools/build-sheet.py`** | Regenerates the workbook. Race config here must match `RACES`/`COLUMNS` in `index.html`. |
-| **`data/middlesex-senate-primary-2026-results.xlsx`** | Data-entry workbook (Results / How to use / District composition). |
-| **`test/test.js`** | `node test/test.js` — 28 assertions on composition, parsing, reporting and call posture. |
+| **`data/results.csv`** | **The live feed.** What the page fetches. Write it with `tools/enter.py`. |
+| **`tools/enter.py`** | Validated entry: `set` one area's numbers, `show` the current state. |
+| **`tools/build-sheet.py`** | Regenerates the fallback workbook. Race config here must match `RACES`/`COLUMNS` in `index.html`. |
+| **`data/middlesex-senate-primary-2026-results.xlsx`** | Fallback workbook (Results / How to use / District composition). |
+| **`test/test.js`** | `node test/test.js` — 39 assertions on composition, parsing, reporting, call posture and `results.csv`. |
 | **`data/sample.csv`** | A partially-filled export, for testing the parser without a live sheet. |
 
 Demo mode is a query parameter, not a separate build: `index.html?demo=1` gives a scenario picker
@@ -79,12 +81,17 @@ deploying.
 ## Data flow
 
 ```
-Community totals + Winchester precinct tapes  ->  Google Sheet (Results tab)  ->  published CSV
-   ->  index.html fetch() every 15s  ->  parse + render  ->  iframe in the article
+Community totals + Winchester precinct tapes  ->  tools/enter.py  ->  data/results.csv
+   ->  commit + push  ->  Pages  ->  index.html fetch() every 15s  ->  parse + render  ->  iframe
 ```
 
-The page recomputes every race from scratch on each refresh, so a correction in the sheet corrects
-the page within 15 seconds.
+`CSV_URL` is the relative path `data/results.csv`: same file locally and deployed, same origin, no
+third-party service in the path. The Google Sheet was dropped as the live source because the Drive
+tooling available to Claude has no Sheets write — see "How results get in" in `CLAUDE.md`.
+
+The page recomputes every race from scratch on each refresh, so a correction in `results.csv`
+corrects the page one poll after it deploys. **The round trip — write, push, Pages redeploy, next
+15s poll — has not been measured. Time it before polls close.**
 
 ---
 
@@ -134,13 +141,21 @@ decorative title and spacer rows are ignored.
 ## Setup
 
 1. Verify the ballot and district data (below).
-2. Upload the xlsx to Drive, open as a Google Sheet.
-3. **File → Share → Publish to web → the `Results` tab → CSV** → copy the URL.
-4. Paste into `CSV_URL` at the top of the `<script>` in `index.html`.
-5. `node test/test.js`, then click through all five scenarios at `?demo=1`.
-6. Push, enable GitHub Pages (Settings → Pages → branch `main`, path `/`).
-7. Share the Sheet as Editor with whoever is typing.
-8. Dry run with the live sheet before Tuesday.
+2. Enable GitHub Pages: Settings → Pages → branch `main`, path `/`. This also serves
+   `data/results.csv`.
+3. `node test/test.js`, then click through all five scenarios at `?demo=1`.
+4. Dry run the full loop: `python3 tools/enter.py set 2nd Somerville …`, commit, push, and watch
+   the deployed page pick it up. **Time it.**
+5. Clear the dry-run numbers before polls close —
+   `python3 tools/enter.py set 2nd Somerville Azeem=- Barber=- …`, or regenerate the file — and
+   confirm the deployed page reads "Awaiting first returns" for both races.
+
+### Fallback
+
+If Pages is slow or GitHub is unreachable, `data/middlesex-senate-primary-2026-results.xlsx` still
+builds a Google Sheet a human can type into: upload to Drive, open as a Sheet, File → Share →
+Publish to web → the `Results` tab → CSV, and point `CSV_URL` at that URL. Same column contract,
+so nothing else changes.
 
 ### Embedding
 

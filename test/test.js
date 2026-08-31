@@ -138,6 +138,39 @@ RACES.forEach(race => {
 });
 console.log('pass no winner language while ALLOW_CALL is off');
 
+// ── Empty data: the ballot must still paint ──
+// The feed unreachable on a browser with nothing cached, or simply the moment
+// before the first fetch lands. Rendering a race with no candidates on it
+// would be worse than rendering it with dashes.
+RACES.forEach(race => {
+  const st = raceState(race, []);
+  eq('empty data still lists every candidate in ' + race.key,
+     st.cands.map(c => c.name), race.cands.map(c => c.n));
+  eq('empty data reads as awaiting in ' + race.key, [st.state, st.anyData], ['awaiting', false]);
+});
+
+// ── data/results.csv is the file the page actually fetches ──
+{
+  const raw = fs.readFileSync(path.join(__dirname, '..', 'data', 'results.csv'), 'utf8');
+  const rows = parseCSV(raw.trim());
+  eq('results.csv columns match the page exactly', rows[0].slice(2), COLUMNS);
+  eq('results.csv column A uses only known race keys',
+     [...new Set(rows.slice(1).map(r => r[0]))].filter(k => !RACES.some(x => x.key === k)), []);
+  RACES.forEach(race => {
+    eq('results.csv carries the full ' + race.key + ' ballot',
+       rows.slice(1).filter(r => r[0] === race.key).map(r => r[1]),
+       race.cands.map(c => c.n).concat(['Write-in', 'Blanks']));
+  });
+  eq('every results.csv row is the right width',
+     rows.slice(1).filter(r => r.length !== COLUMNS.length + 2), []);
+  eq('results.csv holds only blanks or whole numbers',
+     rows.slice(1).flatMap(r => r.slice(2)).filter(c => c !== '' && !/^\d[\d,]*$/.test(c)), []);
+  // The page must survive whatever is in that file, at any fill level.
+  eq('the committed results.csv renders',
+     (() => { try { render(rows.slice(1).map(r => [r[0], r[1], ...COLUMNS.map((_, i) => parseCell(r[2 + i]))])); return true; }
+              catch (e) { return e.message; } })(), true);
+}
+
 Object.keys(SCENARIOS).forEach(name => {
   try { render(SCENARIOS[name]()); } catch (e) { fails++; console.log('FAIL render ' + name + ': ' + e.message); }
 });

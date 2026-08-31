@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>2nd and 5th Middlesex Senate primaries: live results | Winchester News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Inline, so the page makes no second request and logs no favicon 404. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231D4E6B%27/%3E%3Ctext x=%278%27 y=%2712%27 font-family=%27Georgia,serif%27 font-size=%2711%27 font-weight=%27bold%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EW%3C/text%3E%3C/svg%3E">
   <meta name="description" content="Live district-wide results for the Sept. 1, 2026 Democratic state Senate primaries in the 2nd and 5th Middlesex districts.">
   <style>
     :root {
@@ -245,7 +247,10 @@
     // ─────────────────────────────────────────────────────────────────────────
     // CONFIG
     // ─────────────────────────────────────────────────────────────────────────
-    const CSV_URL = "";              // published Google Sheet CSV goes here
+    // Results live in the repo, served by Pages alongside this page. Relative,
+    // so the same file works locally and deployed, and same-origin, so there is
+    // no CORS hop and no third-party service between us and the numbers.
+    const CSV_URL = "data/results.csv";
     const REFRESH_MS = 15000;
     const STORAGE_KEY = 'middlesex-senate-primary-2026';
 
@@ -432,10 +437,17 @@
       // Only count votes from areas that have fully reported, so a partly-typed
       // community never contributes a lopsided fragment to the standings.
       const counted = [...inAreas];
-      const cands = rows.map(r => ({
-        name: r[1], votes: total(r, counted),
-        meta: race.cands.find(c => c.n === r[1]) || {}
-      })).sort((a, b) => b.votes - a.votes);
+      // With no rows at all - first load before the first fetch lands, or the
+      // feed unreachable on a browser with nothing cached - fall back to the
+      // configured ballot so the race still shows its candidates at a dash,
+      // rather than rendering a race with nobody in it.
+      const cands = (rows.length
+        ? rows.map(r => ({
+            name: r[1], votes: total(r, counted),
+            meta: race.cands.find(c => c.n === r[1]) || {}
+          }))
+        : race.cands.map(c => ({ name: c.n, votes: 0, meta: c }))
+      ).sort((a, b) => b.votes - a.votes);
 
       const wRow = data.find(r => r[0] === race.key && r[1] === 'Write-in');
       const bRow = data.find(r => r[0] === race.key && r[1] === 'Blanks');
