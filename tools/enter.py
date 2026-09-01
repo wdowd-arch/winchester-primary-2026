@@ -12,7 +12,7 @@ cannot match exactly once, and prints every change as old -> new.
     python3 tools/enter.py set 2nd Somerville Azeem=2431 Barber=3102 \\
         Hopcroft=1890 McLaughlin=1204 Uyterhoeven=2755 Write-in=12 Blanks=88
 
-Areas may be given as they appear in the header ("Cambridge W9-11") or as a
+Areas may be given as they appear in the header ("Cambridge W10...") or as a
 bare Winchester precinct ("P4"). Candidates match on any unambiguous part of
 the name, so "Lipper" and "O'Malley" are enough. Everything is
 case-insensitive. Nothing is written unless every pair on the line resolves.

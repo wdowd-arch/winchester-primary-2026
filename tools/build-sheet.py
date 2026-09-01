@@ -30,8 +30,12 @@ from openpyxl.worksheet.datavalidation import DataValidation
 # ── Must match RACES / COLUMNS in ../index.html ───────────────────────────────
 #
 # Statutory district composition (2021 redistricting, effective 2022):
-#   2nd Middlesex - Cambridge wards 9-11, all of Medford, all of Somerville,
-#                   and Winchester precincts 4-7.
+#   2nd Middlesex - all of Medford, all of Somerville, Winchester precincts 4-7,
+#                   and the Cambridge portion: Wards 10 and 11 entire plus Ward 7
+#                   Precinct 1 and Ward 8 Precinct 1. Cambridge Ward 9 is NOT in
+#                   this district (it is Suffolk and Middlesex). Confirmed against
+#                   the Cambridge Election Commission ward/precinct/senate-district
+#                   map, effective 2021-12-31.
 #   5th Middlesex - all of Malden, Melrose, Reading, Stoneham and Wakefield,
 #                   and Winchester precincts 1, 2, 3 and 8.
 #
@@ -46,7 +50,8 @@ RACES = [
         "communities": [
             ("Somerville", ["Somerville"]),
             ("Medford", ["Medford"]),
-            ("Cambridge (wards 9-11)", ["Cambridge W9-11"]),
+            ("Cambridge (Wards 10, 11 + 7-1, 8-1)",
+             ["Cambridge W10 W11 W7-1 W8-1"]),
             ("Winchester (precincts 4-7)",
              ["Winchester P4", "Winchester P5", "Winchester P6", "Winchester P7"]),
         ],
@@ -82,10 +87,19 @@ RACES = [
 # Sheet columns C onward, in this exact order. Must equal COLUMNS in index.html.
 COLUMNS = [a for r in RACES for _, areas in r["communities"] for a in areas]
 
+# Precinct/subprecinct reporting units per community, supplied by the editor
+# 2026-08-31, including the "A" subprecincts that report separately at state
+# elections. Cambridge is deliberately absent - see the note on that tab.
+PRECINCTS = {
+    "Somerville": 32, "Medford": 18, "Cambridge (Wards 10, 11 + 7-1, 8-1)": 11, "Winchester (precincts 4-7)": 4,
+    "Malden": 27, "Melrose": 14, "Reading": 8, "Stoneham": 7, "Wakefield": 7,
+    "Winchester (precincts 1, 2, 3, 8)": 4,
+}
+
 INK        = "1A1C1E"
-ACCENT     = "1D4E6B"
+ACCENT     = "35714F"
 HEAD_FILL  = PatternFill("solid", fgColor=ACCENT)
-TITLE_FILL = PatternFill("solid", fgColor="E8EEF2")
+TITLE_FILL = PatternFill("solid", fgColor="E9F2EC")
 NA_FILL    = PatternFill("solid", fgColor="D9D6D0")   # column not used by this race
 ENTRY_FILL = PatternFill("solid", fgColor="FFFFFF")
 SUB_FILL   = PatternFill("solid", fgColor="F4F2EE")
@@ -197,10 +211,12 @@ lines = [
     ("Winchester - our reporters, precinct by precinct, eight precincts split between the "
      "two districts (4, 5, 6, 7 in the 2nd; 1, 2, 3, 8 in the 5th).", ""),
     ("Every other community - that city or town's own posted results, entered as one total "
-     "per candidate. Somerville, Medford and Cambridge wards 9-11 for the 2nd Middlesex; "
+     "per candidate. Somerville, Medford and the Cambridge portion for the 2nd Middlesex; "
      "Malden, Melrose, Reading, Stoneham and Wakefield for the 5th.", ""),
-    ("Cambridge is in the 2nd Middlesex only for WARDS 9, 10 and 11. Do not enter a "
-     "citywide Cambridge total - it would count voters who are not in this district.", ""),
+    ("Cambridge is in the 2nd Middlesex only for WARDS 10 and 11 plus Ward 7 Precinct 1 "
+     "and Ward 8 Precinct 1 - eleven reporting units in all. Ward 9 is NOT in this district. "
+     "Do not enter a citywide Cambridge total: it would count voters who are not in this "
+     "district.", ""),
     ("", ""),
     ("What the page will and will not say", "h2"),
     ("It shows who is LEADING among the communities that have fully reported, and which "
@@ -235,7 +251,7 @@ how.column_dimensions["A"].width = 105
 # DISTRICT COMPOSITION
 # ─────────────────────────────────────────────────────────────────────────────
 ctx = wb.create_sheet("District composition")
-ctx.append(["Race", "Community", "Sheet column(s)", "Precinct count", "Verified?"])
+ctx.append(["Race", "Community", "Sheet column(s)", "Reporting unit", "Precincts"])
 for c in range(1, 6):
     cell = ctx.cell(row=1, column=c)
     cell.font = Font(bold=True, color="FFFFFF")
@@ -246,20 +262,19 @@ for race in RACES:
         ctx.cell(row=r, column=1, value=race["title"])
         ctx.cell(row=r, column=2, value=label)
         ctx.cell(row=r, column=3, value=", ".join(areas))
-        if label.startswith("Winchester"):
-            ctx.cell(row=r, column=4, value=4)
-            ctx.cell(row=r, column=5, value="confirmed")
-        else:
-            ctx.cell(row=r, column=4, value="")
-            ctx.cell(row=r, column=5, value="TO VERIFY").font = Font(bold=True, color="A03020")
+        ctx.cell(row=r, column=4,
+                 value="4 precincts, entered separately" if label.startswith("Winchester")
+                 else "one town-level total")
+        ctx.cell(row=r, column=5, value=PRECINCTS.get(label, "TO ESTABLISH"))
         for c in range(1, 6):
             ctx.cell(row=r, column=c).alignment = Alignment(wrap_text=True, vertical="top")
         r += 1
 r += 1
-ctx.cell(row=r, column=1, value="Fill in the precinct counts from the Secretary of the "
-         "Commonwealth or each clerk, then copy them into RACES[].communities[].precincts in "
-         "index.html. Until every community in a district has a number, the page counts "
-         "communities only and hides the precinct line.").font = Font(italic=True, size=10)
+ctx.cell(row=r, column=1, value="Entry is by community: only Winchester is typed precinct by "
+         "precinct. The Precincts column is the denominator for the page's secondary "
+         "\"N of M precincts\" line - when a city posts its citywide total, all of its precincts "
+         "count at once. The 5th Middlesex totals 67. The 2nd Middlesex shows no precinct line "
+         "until Cambridge's ward composition is settled.").font = Font(italic=True, size=10)
 r += 2
 ctx.cell(row=r, column=1, value="Candidates as configured").font = Font(bold=True, size=12)
 r += 1
@@ -276,7 +291,7 @@ r += 1
 ctx.cell(row=r, column=1,
          value="VERIFY every name, spelling and ballot order against the official ballot "
                "before polls close.").font = Font(bold=True, color="A03020")
-for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 15), ("E", 14)):
+for col, w in (("A", 42), ("B", 30), ("C", 44), ("D", 30), ("E", 11)):
     ctx.column_dimensions[col].width = w
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "middlesex-senate-primary-2026-results.xlsx"

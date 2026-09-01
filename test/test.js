@@ -50,7 +50,7 @@ const WINNER_WORDS = /elected|\bwins\b|\bwon\b|defeat|victor/i;
 
 // ── District composition ──
 eq('2nd Middlesex has four communities', R2.communities.map(c => c.label),
-   ['Somerville', 'Medford', 'Cambridge (wards 9-11)', 'Winchester (4-7)']);
+   ['Somerville', 'Medford', 'Cambridge (Wards 10, 11 + 7-1, 8-1)', 'Winchester (4-7)']);
 eq('5th Middlesex has six communities', R5.communities.map(c => c.label),
    ['Malden', 'Melrose', 'Reading', 'Stoneham', 'Wakefield', 'Winchester (1-3, 8)']);
 eq('Winchester 4-7 in the 2nd', R2.communities[3].areas,
@@ -122,9 +122,43 @@ eq('one race short -> no banner',
   eq('Winchester shows 2 of 4 precincts', [w.inCount, w.parts, w.state], [2, 4, 'partial']);
 }
 
-// ── Precinct sub-count is suppressed while any count is unverified ──
-eq('precinct line hidden when counts unknown',
-   /precincts/.test(reportPhrase(raceState(R2, fill(R2, 4, [1,2,3,4,5])))), false);
+// ── The precinct sub-count ──
+// Both districts are established: 5th = 27+14+8+7+7+4, 2nd = 32+18+11+4, the
+// Cambridge 11 being Wards 10 and 11 plus W7-1 and W8-1 off the Cambridge
+// Election Commission's senate-district map.
+eq('5th Middlesex totals 67 precincts',
+   [raceState(R5, []).allPKnown, raceState(R5, []).precinctsTotal], [true, 67]);
+eq('2nd Middlesex totals 65 precincts',
+   [raceState(R2, []).allPKnown, raceState(R2, []).precinctsTotal], [true, 65]);
+eq('Cambridge contributes 11, not a citywide 33',
+   R2.communities.find(c => /Cambridge/.test(c.label)).precincts, 11);
+eq('no community is labelled ward 9',
+   RACES.flatMap(r => r.communities).filter(c => /ward 9|W9/i.test(c.label)), []);
+eq('Somerville reporting alone is 32 of 65',
+   (st => [st.precinctsIn, st.precinctsTotal])(raceState(R2, fill(R2, 1, [5,4,3,2,1]))), [32, 65]);
+
+// A citywide posting brings in every precinct behind it, all at once.
+eq('Malden reporting counts all 27 of its precincts',
+   raceState(R5, fill(R5, 1, [10, 5, 3])).precinctsIn, 27);
+eq('Malden + Melrose + Reading = 49 of 67',
+   (st => [st.precinctsIn, st.precinctsTotal])(raceState(R5, fill(R5, 3, [10, 5, 3]))), [49, 67]);
+eq('every community in = 67 of 67',
+   (st => [st.precinctsIn, st.precinctsTotal])(raceState(R5, fill(R5, 6, [10, 5, 3]))), [67, 67]);
+eq('the phrase carries both counts',
+   reportPhrase(raceState(R5, fill(R5, 3, [10, 5, 3]))),
+   '3 of 6 communities reporting &middot; 49 of 67 precincts');
+
+// Winchester is the one community counted precinct by precinct, so it moves the
+// sub-count one at a time rather than in a block.
+{
+  const rows = R5.cands.map(c => {
+    const row = [R5.key, c.n, ...COLUMNS.map(() => null)];
+    ['Winchester P1', 'Winchester P3'].forEach(a => { row[colIndex(a)] = 50; });
+    return row;
+  });
+  eq('two Winchester precincts count as two, not four',
+     raceState(R5, rows).precinctsIn, 2);
+}
 
 // ── The call posture ──
 eq('ALLOW_CALL is off by default', ALLOW_CALL, false);

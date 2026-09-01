@@ -8,7 +8,7 @@ live results for both districts, reported community by community, with Wincheste
 precinct by precinct.
 
 ```
-node test/test.js              # 39 assertions — run before every commit
+node test/test.js              # 48 assertions — run before every commit
 python3 tools/enter.py show    # what has been entered so far
 python3 -m http.server 8765    # http://localhost:8765/index.html?demo=1
 ```
@@ -48,12 +48,13 @@ re-election.
 
 | Race | Communities | Winchester |
 |---|---|---|
-| **2nd Middlesex** (D) | Somerville, Medford, **Cambridge wards 9–11 only**, Winchester | precincts 4, 5, 6, 7 |
+| **2nd Middlesex** (D) | Somerville, Medford, **Cambridge Wards 10 & 11 + W7-1, W8-1**, Winchester | precincts 4, 5, 6, 7 |
 | **5th Middlesex** (D) | Malden, Melrose, Reading, Stoneham, Wakefield, Winchester | precincts 1, 2, 3, 8 |
 
-**Cambridge is in the 2nd Middlesex through wards 9, 10 and 11 only.** A citywide Cambridge total
-would count voters outside the district — the single easiest way to corrupt that number. The sheet
-column is labeled `Cambridge W9-11` for exactly that reason.
+**Cambridge is in the 2nd Middlesex through Wards 10 and 11 entire, plus Ward 7 Precinct 1 and
+Ward 8 Precinct 1.** Ward 9 is not in this district. Cambridge is split across three senate
+districts, so a citywide total would count voters from two others — the single easiest way to
+corrupt that number. The column is labeled `Cambridge W10 W11 W7-1 W8-1` for exactly that reason.
 
 ---
 
@@ -64,8 +65,12 @@ Neither should be undone without talking to the desk.
 **The reporting unit is the community, not the precinct — except in Winchester.** Other cities and
 towns post town-level totals on election night; they do not feed precinct tapes to an out-of-town
 newsroom. A full-district denominator would be roughly 90 precincts and could never be honestly
-filled. Winchester is broken out precinct by precinct because that is where our reporters are. So
-the page reads "3 of 6 communities reporting," plus "2 of 4 precincts" for Winchester.
+filled by hand. Winchester is broken out precinct by precinct because that is where our reporters
+are. The page reads "3 of 6 communities reporting," plus "2 of 4 precincts" for Winchester.
+
+A secondary precinct count rides on top where every community in a district has an established
+figure: the 5th Middlesex totals 67 and the 2nd 65. It changes nothing about entry — a city's
+citywide total brings in all of its precincts at once.
 
 **The page does not call winners.** `ALLOW_CALL` is `false`. Partial reads "Leading"; complete
 reads "X leads the district," marked unofficial. Never "wins" or "elected." These totals are
@@ -121,11 +126,9 @@ candidate or a community means editing both and regenerating the workbook.
 
 ## Before it goes live
 
-- [ ] **Verify the ballot.** Candidate names, spellings and order, district composition and the
-      Winchester precinct split were assembled from search results, **not from a primary source** —
-      the build environment could not reach the Secretary of the Commonwealth, `mass.gov`,
-      `electionstats.state.ma.us`, Ballotpedia or Wikipedia. Check against the official ballot and
-      the Town and City Clerks. Full checklist in [`CLAUDE.md`](CLAUDE.md).
+- [ ] **Finish verifying the ballot.** Names, spellings and both districts' composition are
+      confirmed, and coverage is Democratic-only by editorial decision. Still open: the Tom
+      Hopcroft footnote. Full status in [`CLAUDE.md`](CLAUDE.md).
 - [ ] Enable GitHub Pages — Settings → Pages → branch `main`, path `/`. Nothing is published
       until this is on, and it is what serves `data/results.csv`.
 - [ ] `node test/test.js`, then click through all five demo scenarios.
