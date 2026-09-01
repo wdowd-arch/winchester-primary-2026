@@ -20,7 +20,7 @@ anything.
 | Google Sheet | **Not used.** Dropped as the live source — see "How results get in". |
 | Workbook | **Built, now a fallback.** `data/middlesex-senate-primary-2026-results.xlsx`. |
 | GitHub repo | **Exists and pushed** — `wdowd-arch/winchester-primary-2026`. |
-| GitHub Pages | **Not enabled.** Settings → Pages → branch `main`, path `/`. |
+| GitHub Pages | **Enabled and live** at `https://wdowd-arch.github.io/winchester-primary-2026/`. |
 | Ballot verification | **NOT DONE.** See "Unverified" below. This is the highest-priority open item. |
 | Branding | **Placeholder.** Not Winchester News house style. |
 
@@ -233,12 +233,11 @@ rather than silently dropping a race.
 
 ## Next actions, in order
 
-1. Enable GitHub Pages (Settings → Pages → branch `main`, path `/`).
-2. Ballot verification (above). **Highest priority.**
-3. Time one full round trip: `enter.py` write → push → Pages → the page showing it.
-4. Dry run the whole loop end to end before polls close.
-5. Branding pass — real logo, real accent color.
-6. Embed the iframe in the article (snippet in `docs/HANDOFF.md`).
+1. Ballot verification (above). **Highest priority.**
+2. Time one full round trip: `enter.py` write → push → Pages → the page showing it.
+3. Dry run the whole loop end to end before polls close.
+4. Branding pass — real logo, real accent color.
+5. Embed the iframe in the article (snippet in `docs/embed.html`).
 
 The user said they would supply the numbers themselves. If that means they will hand over results
 rather than a reporter typing into the Sheet, ask — the Sheet only earns its keep when someone
