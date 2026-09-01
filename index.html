@@ -5,18 +5,19 @@
   <title>2nd and 5th Middlesex Senate primaries: live results | Winchester News</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Inline, so the page makes no second request and logs no favicon 404. -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%231D4E6B%27/%3E%3Ctext x=%278%27 y=%2712%27 font-family=%27Georgia,serif%27 font-size=%2711%27 font-weight=%27bold%27 fill=%27%23fff%27 text-anchor=%27middle%27%3EW%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 fill=%27%23FCFBF8%27/%3E%3Crect x=%2734%27 y=%278%27 width=%2756%27 height=%2756%27 fill=%27none%27 stroke=%27%2363A87B%27 stroke-width=%2710%27/%3E%3Crect x=%2710%27 y=%2736%27 width=%2756%27 height=%2756%27 fill=%27none%27 stroke=%27%2363A87B%27 stroke-width=%2710%27/%3E%3C/svg%3E">
   <meta name="description" content="Live district-wide results for the Sept. 1, 2026 Democratic state Senate primaries in the 2nd and 5th Middlesex districts.">
   <style>
     :root {
       --ink:        #1A1C1E;   /* primary text */
       --paper:      #FCFBF8;   /* page ground */
-      --accent:     #1D4E6B;   /* leader / live accent - SWAP for Winchester News brand color */
-      --accent-2:   #7A5C2E;   /* secondary accent */
-      --rule:       #E3DFD7;
-      --muted-ink:  #6A6660;
-      --muted-bar:  #A8A29A;
-      --tint:       rgba(29, 78, 107, 0.07);
+      --accent:      #63A87B;  /* Winchester News brand green, sampled from the logo */
+      --accent-deep: #35714F;  /* same hue, dark enough to carry white text */
+      --accent-2:    #7A5C2E;  /* secondary accent */
+      --rule:        #E3DFD7;
+      --muted-ink:   #6A6660;
+      --muted-bar:   #A8A29A;
+      --tint:        rgba(99, 168, 123, 0.10);
     }
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -44,15 +45,16 @@
       padding: 6px 12px; font-family: Georgia, serif; font-size: 13px; cursor: pointer;
     }
     .scenario-picker button:hover { border-color: var(--paper); }
-    .scenario-picker button.active { background: var(--accent); border-color: var(--accent); }
+    .scenario-picker button.active { background: var(--accent-deep); border-color: var(--accent-deep); }
 
     /* ── Masthead ── */
     .masthead {
       border-bottom: 2px solid var(--ink);
       padding: 4px 16px 16px; margin-bottom: 22px; text-align: center;
     }
+    .masthead .mark { display: block; margin: 0 auto; }
     .wordmark {
-      font-size: 30px; font-weight: 700; letter-spacing: 0.5px; margin: 8px 0 0;
+      font-size: 30px; font-weight: 700; letter-spacing: 0.5px; margin: 6px 0 0;
     }
     .masthead-note {
       font-size: 11px; letter-spacing: 1.4px; text-transform: uppercase;
@@ -104,12 +106,12 @@
          Deliberately never says elected / wins / holds. ── */
     .race-lead {
       background: var(--ink); color: var(--paper);
-      padding: 14px 16px; margin: 0 0 16px; border-left: 5px solid var(--accent);
+      padding: 12px 16px; margin: 0 0 12px; border-left: 5px solid var(--accent);
     }
-    .race-lead.complete { background: var(--accent); border-left-color: var(--paper); }
+    .race-lead.complete { background: var(--accent-deep); border-left-color: var(--paper); }
     .race-lead-label {
       font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-      color: #9FC6DA; margin: 0 0 4px; font-weight: 700;
+      color: #A9D6BC; margin: 0 0 4px; font-weight: 700;
     }
     .race-lead.complete .race-lead-label { color: var(--paper); }
     .race-lead-text { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.25; }
@@ -118,7 +120,7 @@
 
     .race-report {
       font-size: 11px; color: var(--muted-bar); letter-spacing: 0.4px;
-      text-transform: uppercase; margin: 0 0 12px;
+      text-transform: uppercase; margin: 0 0 10px;
     }
 
     /* ── Candidate rows. One accent hue for the Winchester leader, muted for the
@@ -165,7 +167,7 @@
 
     /* ── Community reporting strip: which places are in, which are still out ── */
     .communities {
-      display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px;
+      display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px;
     }
     .community {
       font-size: 12px; padding: 4px 10px; border: 1px solid var(--rule);
@@ -176,7 +178,7 @@
     .community.partial { border-color: var(--accent-2); color: var(--accent-2); }
     .community .sub { font-weight: 400; font-style: italic; color: var(--muted-ink); }
     .home-detail {
-      margin: 4px 0 16px; padding: 10px 14px; background: var(--tint);
+      margin: 0 0 12px; padding: 8px 12px; background: var(--tint);
       border-left: 3px solid var(--accent); font-size: 12.5px; color: var(--muted-ink);
     }
     .home-detail strong { color: var(--ink); }
@@ -202,6 +204,10 @@
 
   <div class="container">
     <header class="masthead">
+      <svg class="mark" viewBox="0 0 100 100" width="44" height="44" aria-hidden="true">
+        <rect x="34" y="8"  width="56" height="56" fill="none" stroke="var(--accent)" stroke-width="7"/>
+        <rect x="10" y="36" width="56" height="56" fill="none" stroke="var(--accent)" stroke-width="7"/>
+      </svg>
       <p class="wordmark">Winchester News</p>
       <p class="masthead-note">Live count &middot; Massachusetts state primary &middot; Tuesday, Sept. 1, 2026</p>
     </header>
@@ -513,7 +519,10 @@
         sub = 'Results appear as each community posts its totals.';
       } else if (st.state === 'complete') {
         cls += ' complete';
-        label = (ALLOW_CALL ? 'Result' : 'All communities reporting') + ' &middot; ' + rp;
+        // rp would repeat "all N communities reporting" here; keep only the
+        // precinct half, which is not already in the prefix.
+        label = (ALLOW_CALL ? 'Result' : 'All communities reporting') +
+                (st.allPKnown ? ' &middot; ' + num(st.precinctsIn) + ' of ' + num(st.precinctsTotal) + ' precincts' : '');
         text = st.tied ? 'Tied across the district'
              : esc(st.cands[0].name) + (ALLOW_CALL ? ' wins the nomination' : ' leads the district');
         sub = 'Unofficial. Totals are compiled from each community as it reports and are ' +
@@ -570,7 +579,7 @@
         ${raceLeadHtml(race, st)}
         ${communitiesHtml(st)}
         ${homeDetailHtml(race, st)}
-        <p class="race-report">${reportPhrase(st)} &middot; percentages are of votes counted so far</p>
+        <p class="race-report">Percentages are of votes counted so far</p>
         ${rowsHtml}
         <div class="tallies">
           <span>Write-in <strong>${d ? num(st.writein) : '&mdash;'}</strong></span>

@@ -97,9 +97,9 @@ PRECINCTS = {
 }
 
 INK        = "1A1C1E"
-ACCENT     = "1D4E6B"
+ACCENT     = "35714F"
 HEAD_FILL  = PatternFill("solid", fgColor=ACCENT)
-TITLE_FILL = PatternFill("solid", fgColor="E8EEF2")
+TITLE_FILL = PatternFill("solid", fgColor="E9F2EC")
 NA_FILL    = PatternFill("solid", fgColor="D9D6D0")   # column not used by this race
 ENTRY_FILL = PatternFill("solid", fgColor="FFFFFF")
 SUB_FILL   = PatternFill("solid", fgColor="F4F2EE")
