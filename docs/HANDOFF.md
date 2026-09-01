@@ -169,8 +169,9 @@ so nothing else changes.
 
 ### Embedding
 
-The paste-ready snippet lives in [`embed.html`](embed.html) — copy that file's contents into a
-Custom HTML block in the article. It checks `e.source` as well as `e.origin`, so only this widget
+The site runs on Ghost. The paste-ready snippet lives in [`embed.html`](embed.html) — copy that
+file's contents into one HTML card (`/html`) in the post. Ghost strips iframes and scripts from
+newsletter emails, so pair the card with a plain link to the live page for email readers. It checks `e.source` as well as `e.origin`, so only this widget
 can resize its own iframe, and clamps the height so a bad value cannot break the article layout.
 
 `render()` calls `postHeight()` on every pass, so the iframe tracks the page as results come in.
