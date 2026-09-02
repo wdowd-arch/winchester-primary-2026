@@ -33,11 +33,11 @@ const origWarn = console.warn; console.warn = () => {};
 // so its declarations cannot collide with this file's.
 const api = new Function(src + '\n;return { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell,' +
                          ' colIndex, cellAt, total, hasData, areasReported, raceAreas, raceState,' +
-                         ' raceLeadHtml, reportPhrase, render, allComplete };')();
+                         ' raceLeadHtml, reportPhrase, render, allComplete, headlineText };')();
 console.warn = origWarn;
 const { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell, colIndex, cellAt, total,
         hasData, areasReported, raceAreas, raceState, raceLeadHtml, reportPhrase, render,
-        allComplete } = api;
+        allComplete, headlineText } = api;
 
 let fails = 0;
 const eq = (label, got, want) => {
@@ -180,6 +180,27 @@ RACES.forEach(race => {
 });
 console.log('pass winner language appears only for a race with allowCall on, once complete');
 
+// The h1 headline draws from the same allowCall rule, so it can never say
+// "wins" for a race that either hasn't finished or hasn't been armed.
+eq('headline defaults to the page description with no data',
+   headlineText([]), 'The 2nd and 5th Middlesex Senate primaries');
+RACES.forEach(race => {
+  const other = RACES.find(r => r !== race);
+  for (let n = 0; n <= race.communities.length; n++) {
+    const complete = n === race.communities.length;
+    const shouldAllow = !!race.allowCall && complete;
+    const data = fill(race, n, race.cands.map((_, i) => 100 - i * 10));
+    const headline = headlineText(data);
+    if (WINNER_WORDS.test(headline) && !shouldAllow) {
+      fails++; console.log('FAIL winner language in headline for ' + race.key + ' at ' + n + ' communities: ' + headline);
+    }
+    if (!WINNER_WORDS.test(headline) && shouldAllow) {
+      fails++; console.log('FAIL missing winner language in headline for ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + headline);
+    }
+  }
+});
+console.log('pass headline never says a race with allowCall off, or not yet complete, has been won');
+
 // ── Empty data: the ballot must still paint ──
 // The feed unreachable on a browser with nothing cached, or simply the moment
 // before the first fetch lands. Rendering a race with no candidates on it
@@ -217,6 +238,7 @@ Object.keys(SCENARIOS).forEach(name => {
   try { render(SCENARIOS[name]()); } catch (e) { fails++; console.log('FAIL render ' + name + ': ' + e.message); }
 });
 eq('no winner language in the rendered page', WINNER_WORDS.test(els['races'].innerHTML), false);
+eq('no winner language in the rendered headline', WINNER_WORDS.test(els['headline'].innerHTML), false);
 
 console.log(fails ? '\n' + fails + ' FAILURE(S)' : '\nALL TESTS PASSED');
 process.exit(fails ? 1 : 0);

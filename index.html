@@ -212,7 +212,7 @@
       <p class="masthead-note">Live count &middot; Massachusetts state primary &middot; Tuesday, Sept. 1, 2026</p>
     </header>
 
-    <h1>The 2nd and 5th Middlesex Senate primaries</h1>
+    <h1 id="headline">The 2nd and 5th Middlesex Senate primaries</h1>
 
     <div class="live-meta">
       <span><span class="live-dot"></span><strong id="status">Loading&hellip;</strong></span>
@@ -293,6 +293,7 @@
       {
         key: 'Second Middlesex Senate - Democratic',
         title: 'State Senate &middot; 2nd Middlesex',
+        short: '2nd Middlesex',
         party: 'Democratic primary',
         open: 'Open seat. Sen. Patricia Jehlen is not seeking re-election.',
         allowCall: false,
@@ -316,6 +317,7 @@
       {
         key: 'Fifth Middlesex Senate - Democratic',
         title: 'State Senate &middot; 5th Middlesex',
+        short: '5th Middlesex',
         party: 'Democratic primary',
         open: 'Open seat. Sen. Jason Lewis is not seeking re-election.',
         // Desk call, 2026-09-01: Kate Lipper-Garabedian's lead (5 of 6
@@ -598,8 +600,25 @@
       </section>`;
     }
 
+    // The default h1 ("The 2nd and 5th Middlesex Senate primaries") is a
+    // description of the widget, not a claim about either race, so it is
+    // always a safe fallback. Once a race has any votes in, its part of the
+    // headline names whoever is ahead of what's counted — "leads", never
+    // "wins", unless that specific race is both complete and allowCall.
+    function headlineText(data) {
+      const parts = RACES.map(race => {
+        const st = raceState(race, data);
+        if (!st.anyVotes) return null;
+        if (st.tied) return 'Tied in the ' + race.short;
+        const callIt = st.complete && !!race.allowCall;
+        return esc(st.cands[0].name) + (callIt ? ' wins the ' : ' leads the ') + race.short;
+      }).filter(Boolean);
+      return parts.length ? parts.join(' &middot; ') : 'The 2nd and 5th Middlesex Senate primaries';
+    }
+
     function render(data) {
       document.getElementById('races').innerHTML = RACES.map(r => renderRace(r, data)).join('');
+      document.getElementById('headline').innerHTML = headlineText(data);
       document.getElementById('complete-banner').classList.toggle('hidden', !allComplete(data));
       postHeight();
     }
