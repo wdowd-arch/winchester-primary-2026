@@ -31,11 +31,11 @@ const src = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').ma
 const origWarn = console.warn; console.warn = () => {};
 // Run the page's script in its own function scope and hand the pieces back out,
 // so its declarations cannot collide with this file's.
-const api = new Function(src + '\n;return { RACES, COLUMNS, SCENARIOS, ALLOW_CALL, parseCSV, parseCell,' +
+const api = new Function(src + '\n;return { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell,' +
                          ' colIndex, cellAt, total, hasData, areasReported, raceAreas, raceState,' +
                          ' raceLeadHtml, reportPhrase, render, allComplete };')();
 console.warn = origWarn;
-const { RACES, COLUMNS, SCENARIOS, ALLOW_CALL, parseCSV, parseCell, colIndex, cellAt, total,
+const { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell, colIndex, cellAt, total,
         hasData, areasReported, raceAreas, raceState, raceLeadHtml, reportPhrase, render,
         allComplete } = api;
 
@@ -161,16 +161,24 @@ eq('the phrase carries both counts',
 }
 
 // ── The call posture ──
-eq('ALLOW_CALL is off by default', ALLOW_CALL, false);
+// allowCall is per race, off by default; only a race the desk has explicitly
+// flipped may ever show winner language, and only once every community in
+// it has reported (n === communities.length).
+eq('Second Middlesex allowCall is off', !!R2.allowCall, false);
 RACES.forEach(race => {
   for (let n = 0; n <= race.communities.length; n++) {
+    const complete = n === race.communities.length;
     const hero = raceLeadHtml(race, raceState(race, fill(race, n, race.cands.map((_, i) => 100 - i * 10))));
-    if (WINNER_WORDS.test(hero)) {
+    const shouldAllow = !!race.allowCall && complete;
+    if (WINNER_WORDS.test(hero) && !shouldAllow) {
       fails++; console.log('FAIL winner language in ' + race.key + ' at ' + n + ' communities: ' + hero);
+    }
+    if (!WINNER_WORDS.test(hero) && shouldAllow) {
+      fails++; console.log('FAIL missing winner language in ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + hero);
     }
   }
 });
-console.log('pass no winner language while ALLOW_CALL is off');
+console.log('pass winner language appears only for a race with allowCall on, once complete');
 
 // ── Empty data: the ballot must still paint ──
 // The feed unreachable on a browser with nothing cached, or simply the moment

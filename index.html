@@ -257,10 +257,11 @@
     const STORAGE_KEY = 'middlesex-senate-primary-2026';
 
     // Declare a winner once every community in a district has reported?
-    // Left OFF deliberately. These totals are assembled by hand from other
-    // communities' postings, so "leads with all communities reporting" is a
-    // claim we can stand behind and "wins" is not, until the desk says so.
-    const ALLOW_CALL = false;
+    // Left OFF deliberately, per race. These totals are assembled by hand
+    // from other communities' postings, so "leads with all communities
+    // reporting" is a claim we can stand behind and "wins" is not, until the
+    // desk says so for that specific race. Set `allowCall: true` on a race
+    // in RACES below only once the desk has made that call for it.
 
     // ─────────────────────────────────────────────────────────────────────────
     // DISTRICT COMPOSITION
@@ -294,6 +295,7 @@
         title: 'State Senate &middot; 2nd Middlesex',
         party: 'Democratic primary',
         open: 'Open seat. Sen. Patricia Jehlen is not seeking re-election.',
+        allowCall: false,
         communities: [
           { label: 'Somerville',            areas: ['Somerville'],      precincts: 32 },
           { label: 'Medford',               areas: ['Medford'],         precincts: 18 },
@@ -316,6 +318,12 @@
         title: 'State Senate &middot; 5th Middlesex',
         party: 'Democratic primary',
         open: 'Open seat. Sen. Jason Lewis is not seeking re-election.',
+        // Desk call, 2026-09-01: Kate Lipper-Garabedian's lead (5 of 6
+        // communities, 61%+, every town but Malden carried outright) is wide
+        // enough that the desk has authorized declaring this race once
+        // Wakefield, the last community, reports. Does not apply to the 2nd
+        // Middlesex, which stays off.
+        allowCall: true,
         communities: [
           { label: 'Malden',           areas: ['Malden'],    precincts: 27 },
           { label: 'Melrose',          areas: ['Melrose'],   precincts: 14 },
@@ -426,7 +434,7 @@
     //   awaiting   nothing entered yet
     //   leading    some communities in; someone is ahead of those counted
     //   complete   every community in the district has reported
-    // With ALLOW_CALL off, `complete` still says "leads", not "wins".
+    // With a race's allowCall off, `complete` still says "leads", not "wins".
     // ─────────────────────────────────────────────────────────────────────────
     function raceState(race, data) {
       const rows = raceRows(race, data);
@@ -519,12 +527,13 @@
         sub = 'Results appear as each community posts its totals.';
       } else if (st.state === 'complete') {
         cls += ' complete';
+        const allowCall = !!race.allowCall;
         // rp would repeat "all N communities reporting" here; keep only the
         // precinct half, which is not already in the prefix.
-        label = (ALLOW_CALL ? 'Result' : 'All communities reporting') +
+        label = (allowCall ? 'Result' : 'All communities reporting') +
                 (st.allPKnown ? ' &middot; ' + num(st.precinctsIn) + ' of ' + num(st.precinctsTotal) + ' precincts' : '');
         text = st.tied ? 'Tied across the district'
-             : esc(st.cands[0].name) + (ALLOW_CALL ? ' wins the nomination' : ' leads the district');
+             : esc(st.cands[0].name) + (allowCall ? ' wins the nomination' : ' leads the district');
         sub = 'Unofficial. Totals are compiled from each community as it reports and are ' +
               'subject to correction until the results are certified.';
       } else {
