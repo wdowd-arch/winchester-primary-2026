@@ -18,6 +18,7 @@
       --muted-ink:   #6A6660;
       --muted-bar:   #A8A29A;
       --tint:        rgba(99, 168, 123, 0.10);
+      --warn-deep:   #7A2E2E;  /* stale manual call - needs the desk's eyes */
     }
     *, *::before, *::after { box-sizing: border-box; }
     body {
@@ -108,15 +109,20 @@
       background: var(--ink); color: var(--paper);
       padding: 12px 16px; margin: 0 0 12px; border-left: 5px solid var(--accent);
     }
-    .race-lead.complete { background: var(--accent-deep); border-left-color: var(--paper); }
+    .race-lead.complete, .race-lead.called { background: var(--accent-deep); border-left-color: var(--paper); }
+    .race-lead.call-stale { background: var(--warn-deep); border-left-color: var(--paper); }
     .race-lead-label {
       font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
       color: #A9D6BC; margin: 0 0 4px; font-weight: 700;
     }
-    .race-lead.complete .race-lead-label { color: var(--paper); }
+    .race-lead.complete .race-lead-label,
+    .race-lead.called .race-lead-label,
+    .race-lead.call-stale .race-lead-label { color: var(--paper); }
     .race-lead-text { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.25; }
     .race-lead-sub { font-size: 13px; font-style: italic; margin: 7px 0 0; color: #C8C0B0; max-width: 58ch; }
-    .race-lead.complete .race-lead-sub { color: rgba(255,255,255,0.92); }
+    .race-lead.complete .race-lead-sub,
+    .race-lead.called .race-lead-sub,
+    .race-lead.call-stale .race-lead-sub { color: rgba(255,255,255,0.92); }
 
     .race-report {
       font-size: 11px; color: var(--muted-bar); letter-spacing: 0.4px;
@@ -297,6 +303,11 @@
         party: 'Democratic primary',
         open: 'Open seat. Sen. Patricia Jehlen is not seeking re-election.',
         allowCall: false,
+        // Manual desk call, 2026-09-01: all 6 of 6 communities in, Erika
+        // Uyterhoeven leads Christine Barber by 2,193 votes (37.0% to
+        // 30.4%) with the full count complete, including Cambridge. See
+        // CALL_OVERRIDE below for the guardrails this goes through.
+        call: 'Erika Uyterhoeven',
         communities: [
           { label: 'Somerville',            areas: ['Somerville'],      precincts: 32 },
           { label: 'Medford',               areas: ['Medford'],         precincts: 18 },
@@ -326,6 +337,11 @@
         // Wakefield, the last community, reports. Does not apply to the 2nd
         // Middlesex, which stays off.
         allowCall: true,
+        // Manual desk call, 2026-09-01: Kate Lipper-Garabedian at 61%+
+        // with 5 of 6 communities in, having carried every town but
+        // Malden. See CALL_OVERRIDE below for the guardrails this goes
+        // through.
+        call: 'Kate Lipper-Garabedian',
         communities: [
           { label: 'Malden',           areas: ['Malden'],    precincts: 27 },
           { label: 'Melrose',          areas: ['Melrose'],   precincts: 14 },
@@ -349,6 +365,40 @@
     const colIndex = area => COLUMNS.indexOf(area) + 2;
     const KNOWN_SECTIONS = new Set(RACES.map(r => r.key));
     const raceAreas = race => race.communities.flatMap(c => c.areas);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // MANUAL CALL OVERRIDE
+    //
+    // `call` on a race above is normally null. The desk can set it to an
+    // exact candidate name to have the page declare that race before every
+    // community has reported - a real editorial call, separate from the
+    // automatic allowCall/complete logic in raceLeadHtml. It is deliberately
+    // NOT a silent substitute for reporting progress:
+    //   - The real reporting line ("5 of 6 communities reporting", etc.)
+    //     always still prints under the call, so nobody reads a projection
+    //     as a fully-counted result.
+    //   - The label always says "Winchester News projection", never
+    //     "Result" or "All communities reporting", unless the district
+    //     actually is complete on its own.
+    //   - A call name that doesn't exactly match a candidate on that race's
+    //     ballot fails the page load loudly - see validateCalls - the same
+    //     way tools/enter.py refuses an unmatched name rather than guess.
+    //   - If later returns put someone else in front of the called
+    //     candidate, the page stops showing the call and shows a stale-call
+    //     warning instead, so a forgotten override can't keep declaring the
+    //     wrong person after the count moves past it.
+    // ─────────────────────────────────────────────────────────────────────────
+    function validateCalls() {
+      RACES.forEach(race => {
+        if (race.call == null) return;
+        if (!race.cands.some(c => c.n === race.call)) {
+          throw new Error('race.call "' + race.call + '" on ' + race.key +
+            ' does not exactly match any candidate name on that ballot: ' +
+            race.cands.map(c => c.n).join(', '));
+        }
+      });
+    }
+    validateCalls();
 
     // ─────────────────────────────────────────────────────────────────────────
     // LIVE-DATA STATE
@@ -523,7 +573,21 @@
     function raceLeadHtml(race, st) {
       const rp = reportPhrase(st);
       let cls = 'race-lead', label, text, sub;
-      if (st.state === 'awaiting') {
+      if (race.call != null) {
+        const stale = !st.anyVotes || st.cands[0].name !== race.call || st.tied;
+        cls += stale ? ' call-stale' : ' called';
+        if (stale) {
+          label = 'Desk call needs review &middot; ' + rp;
+          text = esc(race.call) + ' — called, but no longer matches the current count';
+          sub = 'This race carries a manual call that the latest returns no longer support. ' +
+                'Recheck before this is published or shared further.';
+        } else {
+          label = 'Winchester News projection &middot; ' + rp;
+          text = esc(race.call) + ' wins the nomination';
+          sub = 'Called by the Winchester News desk based on current returns, ahead of full ' +
+                'reporting. Unofficial and subject to correction until results are certified.';
+        }
+      } else if (st.state === 'awaiting') {
         label = 'District count &middot; ' + rp;
         text = 'Awaiting first returns';
         sub = 'Results appear as each community posts its totals.';
@@ -608,6 +672,11 @@
     function headlineText(data) {
       const parts = RACES.map(race => {
         const st = raceState(race, data);
+        if (race.call != null) {
+          const stale = !st.anyVotes || st.cands[0].name !== race.call || st.tied;
+          return stale ? esc(race.call) + ' call needs review in the ' + race.short
+                       : esc(race.call) + ' wins the ' + race.short;
+        }
         if (!st.anyVotes) return null;
         if (st.tied) return 'Tied in the ' + race.short;
         const callIt = st.complete && !!race.allowCall;

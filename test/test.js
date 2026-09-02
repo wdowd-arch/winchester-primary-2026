@@ -33,11 +33,11 @@ const origWarn = console.warn; console.warn = () => {};
 // so its declarations cannot collide with this file's.
 const api = new Function(src + '\n;return { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell,' +
                          ' colIndex, cellAt, total, hasData, areasReported, raceAreas, raceState,' +
-                         ' raceLeadHtml, reportPhrase, render, allComplete, headlineText };')();
+                         ' raceLeadHtml, reportPhrase, render, allComplete, headlineText, validateCalls };')();
 console.warn = origWarn;
 const { RACES, COLUMNS, SCENARIOS, parseCSV, parseCell, colIndex, cellAt, total,
         hasData, areasReported, raceAreas, raceState, raceLeadHtml, reportPhrase, render,
-        allComplete, headlineText } = api;
+        allComplete, headlineText, validateCalls } = api;
 
 let fails = 0;
 const eq = (label, got, want) => {
@@ -160,46 +160,106 @@ eq('the phrase carries both counts',
      raceState(R5, rows).precinctsIn, 2);
 }
 
-// ── The call posture ──
+// ── The call posture (automatic allowCall/complete logic, isolated from any
+// manual call) ──
 // allowCall is per race, off by default; only a race the desk has explicitly
 // flipped may ever show winner language, and only once every community in
-// it has reported (n === communities.length).
+// it has reported (n === communities.length). Both real races currently
+// carry a manual call (below), which would swamp this on its own, so this
+// block clears .call on both for its duration and restores it after.
 eq('Second Middlesex allowCall is off', !!R2.allowCall, false);
-RACES.forEach(race => {
-  for (let n = 0; n <= race.communities.length; n++) {
-    const complete = n === race.communities.length;
-    const hero = raceLeadHtml(race, raceState(race, fill(race, n, race.cands.map((_, i) => 100 - i * 10))));
-    const shouldAllow = !!race.allowCall && complete;
-    if (WINNER_WORDS.test(hero) && !shouldAllow) {
-      fails++; console.log('FAIL winner language in ' + race.key + ' at ' + n + ' communities: ' + hero);
-    }
-    if (!WINNER_WORDS.test(hero) && shouldAllow) {
-      fails++; console.log('FAIL missing winner language in ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + hero);
-    }
-  }
-});
-console.log('pass winner language appears only for a race with allowCall on, once complete');
+{
+  const savedCalls = RACES.map(r => r.call);
+  RACES.forEach(r => { r.call = null; });
 
-// The h1 headline draws from the same allowCall rule, so it can never say
-// "wins" for a race that either hasn't finished or hasn't been armed.
-eq('headline defaults to the page description with no data',
-   headlineText([]), 'The 2nd and 5th Middlesex Senate primaries');
-RACES.forEach(race => {
-  const other = RACES.find(r => r !== race);
-  for (let n = 0; n <= race.communities.length; n++) {
-    const complete = n === race.communities.length;
-    const shouldAllow = !!race.allowCall && complete;
-    const data = fill(race, n, race.cands.map((_, i) => 100 - i * 10));
-    const headline = headlineText(data);
-    if (WINNER_WORDS.test(headline) && !shouldAllow) {
-      fails++; console.log('FAIL winner language in headline for ' + race.key + ' at ' + n + ' communities: ' + headline);
+  RACES.forEach(race => {
+    for (let n = 0; n <= race.communities.length; n++) {
+      const complete = n === race.communities.length;
+      const hero = raceLeadHtml(race, raceState(race, fill(race, n, race.cands.map((_, i) => 100 - i * 10))));
+      const shouldAllow = !!race.allowCall && complete;
+      if (WINNER_WORDS.test(hero) && !shouldAllow) {
+        fails++; console.log('FAIL winner language in ' + race.key + ' at ' + n + ' communities: ' + hero);
+      }
+      if (!WINNER_WORDS.test(hero) && shouldAllow) {
+        fails++; console.log('FAIL missing winner language in ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + hero);
+      }
     }
-    if (!WINNER_WORDS.test(headline) && shouldAllow) {
-      fails++; console.log('FAIL missing winner language in headline for ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + headline);
+  });
+  console.log('pass winner language appears only for a race with allowCall on, once complete');
+
+  // The h1 headline draws from the same allowCall rule, so it can never say
+  // "wins" for a race that either hasn't finished or hasn't been armed.
+  eq('headline defaults to the page description with no data',
+     headlineText([]), 'The 2nd and 5th Middlesex Senate primaries');
+  RACES.forEach(race => {
+    for (let n = 0; n <= race.communities.length; n++) {
+      const complete = n === race.communities.length;
+      const shouldAllow = !!race.allowCall && complete;
+      const data = fill(race, n, race.cands.map((_, i) => 100 - i * 10));
+      const headline = headlineText(data);
+      if (WINNER_WORDS.test(headline) && !shouldAllow) {
+        fails++; console.log('FAIL winner language in headline for ' + race.key + ' at ' + n + ' communities: ' + headline);
+      }
+      if (!WINNER_WORDS.test(headline) && shouldAllow) {
+        fails++; console.log('FAIL missing winner language in headline for ' + race.key + ' at ' + n + ' communities (allowCall on, complete): ' + headline);
+      }
     }
-  }
-});
-console.log('pass headline never says a race with allowCall off, or not yet complete, has been won');
+  });
+  console.log('pass headline never says a race with allowCall off, or not yet complete, has been won');
+
+  RACES.forEach((r, i) => { r.call = savedCalls[i]; });
+}
+
+// ── Manual call override ──
+// Desk call, 2026-09-01: both races are now called. eq() confirms the exact
+// shipped value rather than assuming it, since a stray or stale override is
+// exactly the mistake this guards against. validateCalls() must accept the
+// real, shipped RACES config without throwing - if either name drifts from
+// the ballot (a typo, a candidate renamed), the whole page fails to load
+// rather than silently not calling the race it claims to.
+eq('Second Middlesex is called for Erika Uyterhoeven', R2.call, 'Erika Uyterhoeven');
+eq('Fifth Middlesex is called for Kate Lipper-Garabedian', R5.call, 'Kate Lipper-Garabedian');
+{
+  let threw = false;
+  try { validateCalls(); } catch (e) { threw = true; }
+  eq('the real, shipped calls validate without throwing', threw, false);
+}
+
+// A call naming a real candidate on that race's ballot renders as a
+// projection, distinct from both "leads" and the automatic "wins".
+{
+  const leaderRows = fill(R5, 3, R5.cands.map((_, i) => 100 - i * 10)); // Lipper-Garabedian ahead
+  const withCall = { ...R5, call: 'Kate Lipper-Garabedian' };
+  const hero = raceLeadHtml(withCall, raceState(withCall, leaderRows));
+  eq('a matched call reads as a projection, not a bare "wins"',
+     /Winchester News projection/.test(hero) && /wins the nomination/.test(hero), true);
+}
+
+// A call whose name doesn't exactly match a candidate on the ballot must
+// fail loudly at load time - the same refusal tools/enter.py gives an
+// unmatched name - rather than render something nobody actually typed.
+// validateCalls() closes over the real, live RACES array, so this mutates
+// it directly and restores it immediately after.
+{
+  const savedCall = R5.call;
+  R5.call = 'Some Other Person';
+  let threw = false;
+  try { validateCalls(); } catch (e) { threw = true; }
+  R5.call = savedCall;
+  eq('an unmatched call name throws rather than silently rendering', threw, true);
+}
+
+// A call left in place after later returns move someone else into first
+// must show as needing review, never a quiet, still-confident "wins" for
+// whoever is no longer actually ahead.
+{
+  const flipped = fill(R5, 3, [10, 100, 90]); // McDonald now well ahead of Lipper-Garabedian
+  const withStaleCall = { ...R5, call: 'Kate Lipper-Garabedian' };
+  const hero = raceLeadHtml(withStaleCall, raceState(withStaleCall, flipped));
+  eq('a call the count has moved past shows as needing review, not a win',
+     /needs review/.test(hero) && !WINNER_WORDS.test(hero), true);
+}
+console.log('pass manual call override: matched calls project, unmatched names refuse, stale calls flag for review');
 
 // ── Empty data: the ballot must still paint ──
 // The feed unreachable on a browser with nothing cached, or simply the moment
